@@ -11,6 +11,13 @@ import keyboard
 import mouse
 
 try:
+    import win32gui
+    import win32process
+except Exception:  # noqa: E722 - broadly handle any import problem
+    win32gui = None
+    win32process = None
+
+try:
     import pygetwindow as gw
 except Exception:  # noqa: E722 - broadly handle any import problem
     gw = None
@@ -134,7 +141,20 @@ class SystemMonitor:
                     title = win.title or title
             except Exception:
                 pass
-        if sys.platform.startswith("win") and desktop:
+        if sys.platform.startswith("win") and win32gui:
+            try:
+                hwnd = win32gui.GetForegroundWindow()
+                if hwnd:
+                    title = win32gui.GetWindowText(hwnd) or title
+                    if win32process:
+                        _, pid = win32process.GetWindowThreadProcessId(hwnd)
+                        try:
+                            app = psutil.Process(pid).name()
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+        if sys.platform.startswith("win") and desktop and app == "Unknown App":
             try:
                 win = desktop.active_window()
                 if win:
