@@ -17,3 +17,13 @@ def test_memory_limit():
 
     # 1 system message + last 3 user/assistant pairs -> length should be <= 7
     assert len(client._messages) <= 7
+
+
+def test_default_system_prompt():
+    client = OllamaClient()
+    assert client._messages[0]["content"] == "You are a helpful assistant."
+
+
+def test_custom_system_prompt():
+    client = OllamaClient(system_prompt="be quirky")
+    assert client._messages[0]["content"] == "be quirky"

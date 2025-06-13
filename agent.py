@@ -12,7 +12,12 @@ class ClippyAgent:
         self.window = window
         # Monitor the current directory for file changes as an example
         self.monitor = SystemMonitor(watch_paths=["."])
-        self.llm = OllamaClient()
+        self.llm = OllamaClient(
+            system_prompt=(
+                "You are Clippy, the quirky paperclip assistant from the 90s. "
+                "Give short, playful tips in a lighthearted tone."
+            )
+        )
         self.poll_interval = poll_interval
         self._stop = threading.Event()
 
