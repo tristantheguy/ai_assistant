@@ -70,8 +70,14 @@ class SystemMonitor:
 
         self._last_clipboard = pyperclip.paste() if pyperclip else ""
 
-        self._keyboard_hook = keyboard.hook(self._on_keyboard)
-        self._mouse_hook = mouse.hook(self._on_mouse)
+        try:
+            self._keyboard_unhook = keyboard.hook(self._on_keyboard)
+        except Exception:
+            self._keyboard_unhook = None
+        try:
+            self._mouse_unhook = mouse.hook(self._on_mouse)
+        except Exception:
+            self._mouse_unhook = None
 
         self.observer = None
         if watch_paths and Observer:
@@ -240,22 +246,19 @@ class SystemMonitor:
         """Remove hooks and stop background threads."""
         self._stop.set()
         if self._screenshot_thread:
-            self._screenshot_thread.join(timeout=0.1)
+            self._screenshot_thread.join(timeout=1.0)
         if self.observer:
             self.observer.stop()
             self.observer.join()
-        if hasattr(self, "_keyboard_hook") and self._keyboard_hook is not None:
+        if getattr(self, "_keyboard_unhook", None):
             try:
-                keyboard.unhook(self._keyboard_hook)
+                self._keyboard_unhook()
             except Exception:
                 pass
-            self._keyboard_hook = None
-        if hasattr(self, "_mouse_hook") and self._mouse_hook is not None:
+            self._keyboard_unhook = None
+        if getattr(self, "_mouse_unhook", None):
             try:
-                mouse.unhook(self._mouse_hook)
+                self._mouse_unhook()
             except Exception:
                 pass
-            self._mouse_hook = None
-
-    def __del__(self):
-        self.stop()
+            self._mouse_unhook = None
