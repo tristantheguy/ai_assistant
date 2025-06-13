@@ -17,3 +17,11 @@ Snapshots are written to `activity_log.jsonl` in the repository root.
 If the window information libraries are unavailable, the monitor falls back to `"Unknown Window"`.
 
 Legacy test utilities like `test_script.py` and the separate `key_logger.py` have been removed.
+
+## Error reporting
+
+Running `main.py` is now wrapped with an `ErrorReporter`. When an
+exception is raised, the full traceback is sent to a local Ollama
+instance and the model explains the problem. The traceback and LLM
+response are appended to `error_report.txt` so you can review past
+failures.

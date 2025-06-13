@@ -2,6 +2,7 @@ import sys
 from PyQt5 import QtWidgets
 from floating_ui import FloatingWindow
 from agent import ClippyAgent
+from error_handler import ErrorReporter
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
@@ -16,4 +17,9 @@ def main():
     sys.exit(exit_code)
 
 if __name__ == "__main__":
-    main()
+    reporter = ErrorReporter()
+    try:
+        main()
+    except Exception:
+        reporter.handle_exception()
+
