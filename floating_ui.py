@@ -8,19 +8,16 @@ class FloatingWindow(QtWidgets.QWidget):
         self.on_submit = on_submit
         self.setWindowTitle("AI Assistant")
         self.setWindowFlags(
-            QtCore.Qt.Tool
-            | QtCore.Qt.WindowStaysOnTopHint
-            | QtCore.Qt.FramelessWindowHint
+            QtCore.Qt.Window | QtCore.Qt.WindowStaysOnTopHint
         )
-        self.resize(250, 120)
+        self.resize(300, 200)
 
         self._drag_pos = None
 
         layout = QtWidgets.QVBoxLayout(self)
-        self.label = QtWidgets.QLabel("", self)
-        self.label.setWordWrap(True)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        layout.addWidget(self.label)
+        self.log_box = QtWidgets.QTextEdit(self)
+        self.log_box.setReadOnly(True)
+        layout.addWidget(self.log_box)
         self.input = QtWidgets.QLineEdit(self)
         self.input.returnPressed.connect(self._send_input)
         layout.addWidget(self.input)
@@ -29,7 +26,10 @@ class FloatingWindow(QtWidgets.QWidget):
         self.display_message("👋 I'm your assistant! (Drag me around)")
 
     def display_message(self, text):
-        self.label.setText(text)
+        self.log_box.append(text)
+        self.log_box.verticalScrollBar().setValue(
+            self.log_box.verticalScrollBar().maximum()
+        )
 
     def _send_input(self):
         text = self.input.text().strip()

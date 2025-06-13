@@ -374,9 +374,21 @@ class SystemMonitor:
                 return ""
         return ""
 
-    def save_screen_memo(self, label=None, directory="ai_memos"):
-        """Capture screen text and save to a memo file."""
+    def save_screen_memo(self, label=None, directory="ai_memos", allow_empty=False):
+        """Capture screen text and save to a memo file.
+
+        Parameters
+        ----------
+        label : str, optional
+            Optional label for the memo filename.
+        directory : str, default "ai_memos"
+            Directory where the memo will be created.
+        allow_empty : bool, default False
+            When True, a memo file is created even if no text is captured.
+        """
         text = self.capture_screen_text()
+        if not text and allow_empty:
+            text = "No screen text captured"
         if text:
             from memo_utils import save_memo
             save_memo(text, label, directory)

@@ -1,5 +1,6 @@
 import unittest
 from collections import deque
+from pathlib import Path
 
 from system_monitor import SystemMonitor
 
@@ -40,6 +41,18 @@ class SystemMonitorTest(unittest.TestCase):
         monitor._on_mouse(event)
         self.assertTrue(monitor.events)
         self.assertIn("move", monitor.events[-1][1])
+
+    def test_save_screen_memo_allow_empty_creates_file(self):
+        import tempfile
+        monitor = self._make_monitor()
+        monitor.capture_screen_text = lambda: ""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            success = monitor.save_screen_memo(directory=tmpdir, allow_empty=True)
+            self.assertTrue(success)
+            files = list(Path(tmpdir).iterdir())
+            self.assertTrue(files)
+            text = files[0].read_text()
+            self.assertIn("No screen text captured", text)
 
     def test_scan_processes_monkeypatch(self):
         monitor = self._make_monitor()

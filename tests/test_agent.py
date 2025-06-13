@@ -24,8 +24,10 @@ def _make_monitor(tmp_path):
     monitor.capture_snapshot = lambda: {}
     monitor.capture_screen_text = lambda: "dummy text"
 
-    def save_screen_memo(label=None, directory="ai_memos"):
-        return SystemMonitor.save_screen_memo(monitor, label, directory=tmp_path)
+    def save_screen_memo(label=None, directory="ai_memos", allow_empty=False):
+        return SystemMonitor.save_screen_memo(
+            monitor, label, directory=tmp_path, allow_empty=allow_empty
+        )
 
     monitor.save_screen_memo = save_screen_memo
     return monitor
