@@ -1,7 +1,10 @@
 from PyQt5 import QtWidgets, QtCore
 
+
 class FloatingWindow(QtWidgets.QWidget):
     """Small window that stays on top and shows messages."""
+
+    message_signal = QtCore.pyqtSignal(str)
 
     def __init__(self, on_submit=None):
         super().__init__()
@@ -22,14 +25,19 @@ class FloatingWindow(QtWidgets.QWidget):
         self.input.returnPressed.connect(self._send_input)
         layout.addWidget(self.input)
 
+        self.message_signal.connect(self._append_message)
+
         # Show an initial friendly message
         self.display_message("👋 I'm your assistant! (Drag me around)")
 
-    def display_message(self, text):
+    def _append_message(self, text: str):
         self.log_box.append(text)
         self.log_box.verticalScrollBar().setValue(
             self.log_box.verticalScrollBar().maximum()
         )
+
+    def display_message(self, text):
+        self.message_signal.emit(text)
 
     def _send_input(self):
         text = self.input.text().strip()
