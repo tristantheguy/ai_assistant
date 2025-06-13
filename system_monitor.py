@@ -134,8 +134,15 @@ class SystemMonitor:
             self._record(f"Copied text: '{current}'")
 
     def _get_active_window_info(self):
+        """Return the active window title and application name.
+
+        Falls back to various libraries and platform utilities in order of
+        preference. On failure, the title/app will remain "Unknown"."""
+
         title = "Unknown Window"
         app = "Unknown App"
+        pid = None
+
         if gw:
             try:
                 win = gw.getActiveWindow()
@@ -143,6 +150,7 @@ class SystemMonitor:
                     title = win.title or title
             except Exception:
                 pass
+
         if sys.platform.startswith("win") and win32gui:
             try:
                 hwnd = win32gui.GetForegroundWindow()
@@ -156,6 +164,7 @@ class SystemMonitor:
                             pass
             except Exception:
                 pass
+
         if sys.platform.startswith("win") and desktop and app == "Unknown App":
             try:
                 win = desktop.active_window()
@@ -169,6 +178,49 @@ class SystemMonitor:
                             pass
             except Exception:
                 pass
+
+        # On non-Windows systems, attempt native utilities if pywin32 is absent
+        if not sys.platform.startswith("win") and title == "Unknown Window":
+            try:
+                import subprocess
+                import re
+                if sys.platform.startswith("linux"):
+                    active = subprocess.check_output(
+                        ["xprop", "-root", "_NET_ACTIVE_WINDOW"], text=True
+                    )
+                    m = re.search(r"window id # (0x[0-9a-fA-F]+)", active)
+                    if m:
+                        wid = m.group(1)
+                        pid_out = subprocess.check_output(
+                            ["xprop", "-id", wid, "_NET_WM_PID"], text=True
+                        )
+                        pid = int(pid_out.strip().split()[-1])
+                        title_out = subprocess.check_output(
+                            ["xprop", "-id", wid, "WM_NAME"], text=True
+                        )
+                        title = title_out.split("=", 1)[-1].strip().strip('"') or title
+                        app = psutil.Process(pid).name()
+                elif sys.platform == "darwin":
+                    script_app = (
+                        'tell application "System Events" to get name of first '
+                        'process whose frontmost is true'
+                    )
+                    app = subprocess.check_output(["osascript", "-e", script_app], text=True).strip() or app
+                    script_title = (
+                        'tell application "System Events" to tell (process 1 whose '
+                        'frontmost is true) to get title of front window'
+                    )
+                    title = subprocess.check_output(["osascript", "-e", script_title], text=True).strip() or title
+            except Exception:
+                pass
+
+        # If title is still unknown but PID was discovered, fallback to process name
+        if title == "Unknown Window" and pid:
+            try:
+                title = psutil.Process(pid).name()
+            except Exception:
+                pass
+
         return title, app
 
     def _extract_ui_text(self):
