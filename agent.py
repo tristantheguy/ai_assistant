@@ -9,7 +9,8 @@ class ClippyAgent:
 
     def __init__(self, window, poll_interval=10):
         self.window = window
-        self.monitor = SystemMonitor()
+        # Monitor the current directory for file changes as an example
+        self.monitor = SystemMonitor(watch_paths=["."])
         self.llm = OllamaClient()
         self.poll_interval = poll_interval
         self._stop = threading.Event()
