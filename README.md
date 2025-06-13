@@ -45,3 +45,10 @@ you customize the assistant's personality.
 Use `SystemMonitor.save_screen_memo()` to capture on-screen text and save it in the `ai_memos` folder. The helper `memo_utils.save_memo()` writes a timestamped file with a descriptive name. Typing **memo**, **remember**, or **note** in the assistant's text box automatically triggers this capture. Pass `allow_empty=True` to `save_screen_memo` to force a memo even when OCR text can't be captured (e.g. if dependencies are missing).
 
 `SystemMonitor.scan_processes()` performs a simple heuristic check for suspicious processes based on keywords like "malware" or "virus".
+
+## Google Voice assistant
+
+The optional `google_voice_assistant.py` script automates texting through
+Google Voice. It defaults to running Chrome in headless mode. Set the
+environment variable `HEADLESS=0` to open a visible browser window so you
+can complete login or any verification steps.
