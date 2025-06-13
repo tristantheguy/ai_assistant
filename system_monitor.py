@@ -54,7 +54,11 @@ except Exception:  # noqa: E722 - broadly handle any import problem
 
 try:
     import pytesseract
-    pytesseract.pytesseract.tesseract_cmd = r"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
+    import shutil
+    import os
+    cmd = os.environ.get("TESSERACT_CMD") or shutil.which("tesseract")
+    if cmd:
+        pytesseract.pytesseract.tesseract_cmd = cmd
 except Exception:  # noqa: E722 - broadly handle any import problem
     pytesseract = None
 

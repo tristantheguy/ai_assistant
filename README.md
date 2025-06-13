@@ -38,3 +38,14 @@ microphone.
 Use `SystemMonitor.save_screen_memo()` to capture on-screen text and save it in the `ai_memos` folder. The helper `memo_utils.save_memo()` writes a timestamped file with a descriptive name.
 
 `SystemMonitor.scan_processes()` performs a simple heuristic check for suspicious processes based on keywords like "malware" or "virus".
+
+### OCR configuration
+
+Screen text extraction relies on Tesseract. The monitor will attempt to locate
+the `tesseract` executable automatically. If detection fails, set the
+`TESSERACT_CMD` environment variable to the full path before running the
+assistant:
+
+```bash
+export TESSERACT_CMD=/path/to/tesseract
+```

@@ -1,5 +1,6 @@
 import unittest
 from collections import deque
+from unittest import mock
 
 from system_monitor import SystemMonitor
 
@@ -65,6 +66,21 @@ class SystemMonitorTest(unittest.TestCase):
 
         names = [p["name"] for p in suspicious]
         self.assertIn("bad-virus.exe", names)
+
+    def test_env_var_sets_tesseract_path(self):
+        import importlib
+        import sys
+        import types
+        import os
+
+        dummy = types.SimpleNamespace(pytesseract=types.SimpleNamespace())
+        with mock.patch.dict(sys.modules, {"pytesseract": dummy}):
+            with mock.patch.dict(os.environ, {"TESSERACT_CMD": "/opt/custom"}):
+                mod = importlib.reload(importlib.import_module("system_monitor"))
+                self.assertEqual(
+                    dummy.pytesseract.tesseract_cmd, "/opt/custom"
+                )
+        importlib.reload(mod)
 
 
 if __name__ == "__main__":
