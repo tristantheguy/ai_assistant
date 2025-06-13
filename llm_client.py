@@ -12,13 +12,12 @@ class OllamaClient:
         model: str = "openhermes",
         url: str = "http://localhost:11434/api/chat",
         memory: int = 5,
+        system_prompt: str = "You are a helpful assistant.",
     ) -> None:
         self.model = model
         self.url = url
         self._messages: Deque[Dict[str, Any]] = deque(maxlen=memory)
-        self._messages.append(
-            {"role": "system", "content": "You are a helpful assistant."}
-        )
+        self._messages.append({"role": "system", "content": system_prompt})
 
     def query(self, prompt: str, timeout: int = 60) -> str:
         """Send a prompt and update conversation history."""

@@ -33,6 +33,13 @@ Enter to send it directly to the LLM. The reply appears in the floating window
 so you can interact with the assistant in real time without using your
 microphone.
 
+### Custom system prompt
+
+`OllamaClient` now accepts a `system_prompt` argument. This optional string
+sets the initial system message used for every conversation. If omitted, the
+client defaults to "You are a helpful assistant." Passing a different value lets
+you customize the assistant's personality.
+
 ## Memos and process scans
 
 Use `SystemMonitor.save_screen_memo()` to capture on-screen text and save it in the `ai_memos` folder. The helper `memo_utils.save_memo()` writes a timestamped file with a descriptive name.
