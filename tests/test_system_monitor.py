@@ -66,6 +66,25 @@ class SystemMonitorTest(unittest.TestCase):
         names = [p["name"] for p in suspicious]
         self.assertIn("bad-virus.exe", names)
 
+    def test_init_without_input_modules(self):
+        import importlib
+        import builtins
+        import system_monitor as sm
+
+        real_import = builtins.__import__
+
+        def fake_import(name, globals=None, locals=None, fromlist=(), level=0):
+            if name in ("keyboard", "mouse"):
+                raise ImportError()
+            return real_import(name, globals, locals, fromlist, level)
+
+        with unittest.mock.patch("builtins.__import__", side_effect=fake_import):
+            importlib.reload(sm)
+            monitor = sm.SystemMonitor()
+            self.assertIsNone(sm.keyboard)
+            self.assertIsNone(sm.mouse)
+        importlib.reload(sm)
+
 
 if __name__ == "__main__":
     unittest.main()
