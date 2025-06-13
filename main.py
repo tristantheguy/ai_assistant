@@ -10,6 +10,7 @@ def main():
     window.show()
 
     agent = ClippyAgent(window)
+    window.on_submit = agent.handle_text
     agent.start()
 
     exit_code = app.exec_()

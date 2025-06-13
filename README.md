@@ -25,3 +25,10 @@ exception is raised, the full traceback is sent to a local Ollama
 instance and the model explains the problem. The traceback and LLM
 response are appended to `error_report.txt` so you can review past
 failures.
+
+## Interactive commands
+
+The assistant window now includes a small text box. Type a prompt and press
+Enter to send it directly to the LLM. The reply appears in the floating window
+so you can interact with the assistant in real time without using your
+microphone.

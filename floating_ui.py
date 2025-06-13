@@ -3,8 +3,9 @@ from PyQt5 import QtWidgets, QtCore
 class FloatingWindow(QtWidgets.QWidget):
     """Small window that stays on top and shows messages."""
 
-    def __init__(self):
+    def __init__(self, on_submit=None):
         super().__init__()
+        self.on_submit = on_submit
         self.setWindowTitle("AI Assistant")
         self.setWindowFlags(
             QtCore.Qt.Tool
@@ -20,12 +21,21 @@ class FloatingWindow(QtWidgets.QWidget):
         self.label.setWordWrap(True)
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         layout.addWidget(self.label)
+        self.input = QtWidgets.QLineEdit(self)
+        self.input.returnPressed.connect(self._send_input)
+        layout.addWidget(self.input)
 
         # Show an initial friendly message
         self.display_message("👋 I'm your assistant! (Drag me around)")
 
     def display_message(self, text):
         self.label.setText(text)
+
+    def _send_input(self):
+        text = self.input.text().strip()
+        if text and self.on_submit:
+            self.on_submit(text)
+        self.input.clear()
 
     # -- Drag Support -----------------------------------------------------
     def mousePressEvent(self, event):
