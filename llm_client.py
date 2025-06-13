@@ -1,16 +1,30 @@
 import json
+from collections import deque
+from typing import Deque, Dict, Any
+
 import requests
 
 class OllamaClient:
-    def __init__(self, model="openhermes", url="http://localhost:11434/api/chat"):
+    """Simple client that keeps short conversation history."""
+
+    def __init__(
+        self,
+        model: str = "openhermes",
+        url: str = "http://localhost:11434/api/chat",
+        memory: int = 5,
+    ) -> None:
         self.model = model
         self.url = url
+        self._messages: Deque[Dict[str, Any]] = deque(maxlen=memory)
+        self._messages.append(
+            {"role": "system", "content": "You are a helpful assistant."}
+        )
 
-    def query(self, prompt, timeout=60):
-        payload = {
-            "model": self.model,
-            "messages": [{"role": "user", "content": prompt}]
-        }
+    def query(self, prompt: str, timeout: int = 60) -> str:
+        """Send a prompt and update conversation history."""
+        self._messages.append({"role": "user", "content": prompt})
+        payload = {"model": self.model, "messages": list(self._messages)}
+
         resp = requests.post(self.url, json=payload, timeout=timeout)
         resp.raise_for_status()
 
@@ -26,4 +40,6 @@ class OllamaClient:
             return "".join(parts)
 
         data = resp.json()
-        return data.get("message", {}).get("content", "")
+        reply = data.get("message", {}).get("content", "")
+        self._messages.append({"role": "assistant", "content": reply})
+        return reply
