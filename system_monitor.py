@@ -4,6 +4,7 @@ import sys
 import time
 from collections import deque
 from datetime import datetime
+import json
 import threading
 
 import psutil
@@ -60,9 +61,10 @@ except Exception:  # noqa: E722 - broadly handle any import problem
 class SystemMonitor:
     """Tracks active window, inputs, clipboard, screenshots and optional file events."""
 
-    def __init__(self, history_seconds=30, watch_paths=None, screenshot_interval=5):
+    def __init__(self, history_seconds=30, watch_paths=None, screenshot_interval=5, log_path="activity_log.jsonl"):
         self.history_seconds = history_seconds
         self.events = deque()
+        self.log_path = log_path
 
         self.screenshot_interval = screenshot_interval
         self._stop = threading.Event()
@@ -235,12 +237,54 @@ class SystemMonitor:
         processes = {p.pid: p.name() for p in psutil.process_iter(["name"])}
         self._record(f"Running apps: {list(processes.values())[:5]}")
 
+        snapshot = self.to_json()
+        self._append_to_log(snapshot)
+        return snapshot
+
     def summarize(self):
         """Return a plain-language summary of recent events."""
         self._prune_history()
         lines = [e[1] for e in self.events]
         summary = "\n".join(lines)
         return f"Recent activity ({datetime.now().strftime('%H:%M:%S')}):\n{summary}"
+
+    def to_json(self):
+        """Return a structured summary of recent events."""
+        self._prune_history()
+
+        title, app = self._get_active_window_info()
+
+        clipboard = [
+            e[1][13:-1]
+            for e in self.events
+            if e[1].startswith("Copied text:")
+        ]
+        inputs = [
+            e[1]
+            for e in self.events
+            if e[1].startswith("Pressed key") or e[1].startswith("Mouse")
+        ]
+        ocr = [
+            e[1][12:]
+            for e in self.events
+            if e[1].startswith("Screen OCR:")
+        ]
+
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "active_window": {"title": title, "app": app},
+            "clipboard": clipboard,
+            "input_events": inputs,
+            "ocr_snippets": ocr,
+        }
+
+    def _append_to_log(self, data):
+        try:
+            with open(self.log_path, "a", encoding="utf-8") as f:
+                json.dump(data, f)
+                f.write("\n")
+        except Exception:
+            pass
 
     def stop(self):
         """Remove hooks and stop background threads."""
