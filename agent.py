@@ -48,6 +48,6 @@ class ClippyAgent:
         lower = text.lower()
         if any(k in lower for k in ["memo", "remember", "note"]):
             try:
-                self.monitor.save_screen_memo(label=text)
+                self.monitor.save_screen_memo(label=text, allow_empty=True)
             except Exception:
                 pass

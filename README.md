@@ -29,9 +29,9 @@ failures.
 ## Interactive commands
 
 The assistant window now includes a small text box. Type a prompt and press
-Enter to send it directly to the LLM. The reply appears in the floating window
-so you can interact with the assistant in real time without using your
-microphone.
+Enter to send it directly to the LLM. Replies accumulate in the floating window
+so you have a scrollable running log of the conversation. The window can now be
+resized like a normal application.
 
 ### Custom system prompt
 
@@ -42,6 +42,6 @@ you customize the assistant's personality.
 
 ## Memos and process scans
 
-Use `SystemMonitor.save_screen_memo()` to capture on-screen text and save it in the `ai_memos` folder. The helper `memo_utils.save_memo()` writes a timestamped file with a descriptive name. Typing **memo**, **remember**, or **note** in the assistant's text box automatically triggers this capture.
+Use `SystemMonitor.save_screen_memo()` to capture on-screen text and save it in the `ai_memos` folder. The helper `memo_utils.save_memo()` writes a timestamped file with a descriptive name. Typing **memo**, **remember**, or **note** in the assistant's text box automatically triggers this capture. Pass `allow_empty=True` to `save_screen_memo` to force a memo even when OCR text can't be captured (e.g. if dependencies are missing).
 
 `SystemMonitor.scan_processes()` performs a simple heuristic check for suspicious processes based on keywords like "malware" or "virus".
