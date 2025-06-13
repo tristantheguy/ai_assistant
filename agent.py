@@ -22,6 +22,7 @@ class ClippyAgent:
     def stop(self):
         self._stop.set()
         self.thread.join()
+        self.monitor.stop()
 
     def _loop(self):
         while not self._stop.is_set():

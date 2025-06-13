@@ -70,8 +70,8 @@ class SystemMonitor:
 
         self._last_clipboard = pyperclip.paste() if pyperclip else ""
 
-        keyboard.hook(self._on_keyboard)
-        mouse.hook(self._on_mouse)
+        self._keyboard_hook = keyboard.hook(self._on_keyboard)
+        self._mouse_hook = mouse.hook(self._on_mouse)
 
         self.observer = None
         if watch_paths and Observer:
@@ -236,10 +236,26 @@ class SystemMonitor:
         summary = "\n".join(lines)
         return f"Recent activity ({datetime.now().strftime('%H:%M:%S')}):\n{summary}"
 
-    def __del__(self):
+    def stop(self):
+        """Remove hooks and stop background threads."""
         self._stop.set()
         if self._screenshot_thread:
             self._screenshot_thread.join(timeout=0.1)
         if self.observer:
             self.observer.stop()
             self.observer.join()
+        if hasattr(self, "_keyboard_hook") and self._keyboard_hook is not None:
+            try:
+                keyboard.unhook(self._keyboard_hook)
+            except Exception:
+                pass
+            self._keyboard_hook = None
+        if hasattr(self, "_mouse_hook") and self._mouse_hook is not None:
+            try:
+                mouse.unhook(self._mouse_hook)
+            except Exception:
+                pass
+            self._mouse_hook = None
+
+    def __del__(self):
+        self.stop()
