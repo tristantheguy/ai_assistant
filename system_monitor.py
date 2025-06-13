@@ -343,3 +343,50 @@ class SystemMonitor:
         if self.observer:
             self.observer.stop()
             self.observer.join()
+
+
+    def capture_screen_text(self):
+        """Return OCR text from a screenshot if possible."""
+        img = None
+        if ImageGrab:
+            try:
+                img = ImageGrab.grab()
+            except Exception:
+                img = None
+        if img is None and pyautogui:
+            try:
+                img = pyautogui.screenshot()
+            except Exception:
+                img = None
+        if img and pytesseract:
+            try:
+                return pytesseract.image_to_string(img).strip()
+            except Exception:
+                return ""
+        return ""
+
+    def save_screen_memo(self, label=None, directory="ai_memos"):
+        """Capture screen text and save to a memo file."""
+        text = self.capture_screen_text()
+        if text:
+            from memo_utils import save_memo
+            save_memo(text, label, directory)
+            return True
+        return False
+
+    def scan_processes(self):
+        """Return a list of suspicious processes using simple heuristics."""
+        keywords = ["hack", "malware", "virus", "keylog", "spy", "trojan"]
+        suspicious = []
+        for proc in psutil.process_iter(["pid", "name", "exe"]):
+            try:
+                info = proc.info
+                name = (info.get("name") or "").lower()
+                exe = (info.get("exe") or "").lower()
+                if any(k in name or k in exe for k in keywords):
+                    suspicious.append(info)
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+            except Exception:
+                continue
+        return suspicious
