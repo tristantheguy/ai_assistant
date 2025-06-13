@@ -41,6 +41,31 @@ class SystemMonitorTest(unittest.TestCase):
         self.assertTrue(monitor.events)
         self.assertIn("move", monitor.events[-1][1])
 
+    def test_scan_processes_monkeypatch(self):
+        monitor = self._make_monitor()
+
+        class P:
+            def __init__(self, pid, name, exe):
+                self.info = {"pid": pid, "name": name, "exe": exe}
+
+        def fake_iter(attrs):
+            return [
+                P(1, "good.exe", "/bin/good.exe"),
+                P(2, "bad-virus.exe", "/tmp/bad-virus.exe"),
+            ]
+
+        import psutil
+
+        original_iter = psutil.process_iter
+        psutil.process_iter = fake_iter
+        try:
+            suspicious = monitor.scan_processes()
+        finally:
+            psutil.process_iter = original_iter
+
+        names = [p["name"] for p in suspicious]
+        self.assertIn("bad-virus.exe", names)
+
 
 if __name__ == "__main__":
     unittest.main()
