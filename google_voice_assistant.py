@@ -3,7 +3,9 @@
 This module uses Selenium to log into Google Voice, send and receive
 SMS messages, and periodically report system status. It does not
 circumvent captchas or two-factor authentication; manual intervention
-is required if Google prompts for additional verification.
+is required if Google prompts for additional verification. Set the
+environment variable ``HEADLESS=0`` to run with a visible browser when
+manual login is needed.
 """
 
 from __future__ import annotations
@@ -37,10 +39,17 @@ def _setup_logging() -> None:
     )
 
 
-def create_driver() -> webdriver.Chrome:
-    """Return a headless Chrome driver."""
+def create_driver(headless: bool = True) -> webdriver.Chrome:
+    """Return a Chrome driver.
+
+    Parameters
+    ----------
+    headless: bool, optional
+        If ``True`` (default), the browser runs in headless mode.
+    """
     options = Options()
-    options.add_argument("--headless=new")
+    if headless:
+        options.add_argument("--headless=new")
     options.add_argument("--disable-gpu")
     options.add_argument("--window-size=1920,1080")
     return webdriver.Chrome(options=options)
@@ -119,11 +128,13 @@ class VoiceAssistant:
 
 def main() -> None:
     _setup_logging()
+    headless_env = os.getenv("HEADLESS", "1").lower()
+    headless = headless_env not in ("0", "false", "no")
     email = os.getenv("GV_EMAIL") or input("Google email: ")
     password = os.getenv("GV_PASS") or input("Google password: ")
     my_phone = os.getenv("MY_PHONE") or input("Your phone number: ")
 
-    driver = create_driver()
+    driver = create_driver(headless=headless)
     if not login_to_google_voice(driver, email, password):
         logging.error("Failed to login to Google Voice.")
         return
