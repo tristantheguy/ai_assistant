@@ -1,6 +1,9 @@
 import time
 import psutil
-import pygetwindow as gw
+try:
+    import pygetwindow as gw
+except Exception:  # noqa: E722 - broadly handle any import problem
+    gw = None
 import keyboard
 import mouse
 from collections import deque
@@ -31,7 +34,10 @@ class SystemMonitor:
         self._prune_history()
         timestamp = time.time()
         try:
-            fg_window = gw.getActiveWindow().title
+            if gw:
+                fg_window = gw.getActiveWindow().title
+            else:
+                fg_window = "Unknown Window"
         except Exception:
             fg_window = "Unknown Window"
         processes = {p.pid: p.name() for p in psutil.process_iter(["name"])}
