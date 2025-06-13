@@ -34,3 +34,8 @@ class ClippyAgent:
                 if self._stop.is_set():
                     break
                 time.sleep(1)
+
+    def handle_text(self, text):
+        """Process text input by querying the LLM and showing the reply."""
+        reply = self.llm.query(text)
+        self.window.display_message(reply)
