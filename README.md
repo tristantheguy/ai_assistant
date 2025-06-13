@@ -9,6 +9,8 @@ The `SystemMonitor` component now tracks:
 - Keyboard and mouse activity.
 - Optional file modifications using `watchdog`.
 
+Snapshots are written to `activity_log.jsonl` in the repository root.
+
 If the window information libraries are unavailable, the monitor falls back to `"Unknown Window"`.
 
 Legacy test utilities like `test_script.py` and the separate `key_logger.py` have been removed.

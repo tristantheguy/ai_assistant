@@ -1,5 +1,6 @@
 import threading
 import time
+import json
 
 from system_monitor import SystemMonitor
 from llm_client import OllamaClient
@@ -25,8 +26,8 @@ class ClippyAgent:
 
     def _loop(self):
         while not self._stop.is_set():
-            self.monitor.capture_snapshot()
-            summary = self.monitor.summarize()
+            snapshot = self.monitor.capture_snapshot()
+            summary = json.dumps(snapshot)
             response = self.llm.query(summary)
             self.window.display_message(response)
             for _ in range(self.poll_interval):
