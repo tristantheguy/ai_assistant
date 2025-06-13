@@ -113,7 +113,11 @@ class SystemMonitor:
         self._record(f"Pressed key: {event.name}")
 
     def _on_mouse(self, event):
-        self._record(f"Mouse {event.event_type}")
+        event_type = getattr(event, "event_type", None) or event.__class__.__name__
+        message = f"Mouse {event_type}"
+        if hasattr(event, "delta"):
+            message += f" delta={event.delta}"
+        self._record(message)
 
     def _prune_history(self):
         cutoff = time.time() - self.history_seconds
