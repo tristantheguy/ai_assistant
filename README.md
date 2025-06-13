@@ -42,6 +42,6 @@ you customize the assistant's personality.
 
 ## Memos and process scans
 
-Use `SystemMonitor.save_screen_memo()` to capture on-screen text and save it in the `ai_memos` folder. The helper `memo_utils.save_memo()` writes a timestamped file with a descriptive name.
+Use `SystemMonitor.save_screen_memo()` to capture on-screen text and save it in the `ai_memos` folder. The helper `memo_utils.save_memo()` writes a timestamped file with a descriptive name. Typing **memo**, **remember**, or **note** in the assistant's text box automatically triggers this capture.
 
 `SystemMonitor.scan_processes()` performs a simple heuristic check for suspicious processes based on keywords like "malware" or "virus".

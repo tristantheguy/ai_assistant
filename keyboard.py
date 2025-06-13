@@ -1,0 +1,2 @@
+def hook(func):
+    pass

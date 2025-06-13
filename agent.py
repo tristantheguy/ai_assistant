@@ -44,3 +44,10 @@ class ClippyAgent:
         """Process text input by querying the LLM and showing the reply."""
         reply = self.llm.query(text)
         self.window.display_message(reply)
+
+        lower = text.lower()
+        if any(k in lower for k in ["memo", "remember", "note"]):
+            try:
+                self.monitor.save_screen_memo(label=text)
+            except Exception:
+                pass
