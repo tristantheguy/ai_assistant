@@ -8,8 +8,15 @@ import json
 import threading
 
 import psutil
-import keyboard
-import mouse
+try:
+    import keyboard
+except Exception:  # noqa: E722 - broadly handle any import problem
+    keyboard = None
+
+try:
+    import mouse
+except Exception:  # noqa: E722 - broadly handle any import problem
+    mouse = None
 
 try:
     import win32gui
@@ -72,8 +79,10 @@ class SystemMonitor:
 
         self._last_clipboard = pyperclip.paste() if pyperclip else ""
 
-        keyboard.hook(self._on_keyboard)
-        mouse.hook(self._on_mouse)
+        if keyboard:
+            keyboard.hook(self._on_keyboard)
+        if mouse:
+            mouse.hook(self._on_mouse)
 
         self.observer = None
         if watch_paths and Observer:
