@@ -72,6 +72,8 @@ can complete login or any verification steps.
 ## Discord Bot
 Run `discord_bot.py` to enable a chat interface in Discord.
 Set the `DISCORD_TOKEN` environment variable with your bot token before running.
+The bot requires the **Message Content Intent** to read text in channels, so
+enable that permission in the Discord developer portal.
 
 ## License
 
