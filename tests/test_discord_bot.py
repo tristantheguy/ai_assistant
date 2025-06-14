@@ -39,3 +39,13 @@ def test_handle_message_llm(monkeypatch):
     assert dummy.prompt == "question"
     assert channel.sent == ["reply"]
 
+
+def test_handle_message_status(monkeypatch):
+    channel = DummyChannel()
+    message = SimpleNamespace(author=DummyAuthor(), content="!status", channel=channel)
+
+    dummy_monitor = SimpleNamespace(summarize=lambda: "summary", capture_snapshot=lambda: None)
+    monkeypatch.setattr(discord_bot, "monitor", dummy_monitor)
+    asyncio.run(discord_bot.handle_message(message))
+    assert channel.sent == ["summary"]
+
