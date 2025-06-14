@@ -9,6 +9,7 @@ Use pip to install the required packages:
 pip install -r requirements.txt
 ```
 
+You can optionally set the `TESSERACT_CMD` environment variable if Tesseract OCR is installed in a non-standard location.
 
 The `SystemMonitor` component now tracks:
 
@@ -55,6 +56,9 @@ Use `SystemMonitor.save_screen_memo()` to capture on-screen text and save it in 
 
 `SystemMonitor.scan_processes()` performs a simple heuristic check for suspicious processes based on keywords like "malware" or "virus".
 
+## Discord Bot
+Run `discord_bot.py` to enable a chat interface in Discord.
+Set the `DISCORD_TOKEN` environment variable with your bot token before running.
 
 ## License
 

@@ -61,7 +61,9 @@ except Exception:  # noqa: E722 - broadly handle any import problem
 
 try:
     import pytesseract
-    pytesseract.pytesseract.tesseract_cmd = r"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
+    tess_cmd = os.getenv("TESSERACT_CMD")
+    if tess_cmd:
+        pytesseract.pytesseract.tesseract_cmd = tess_cmd
 except Exception:  # noqa: E722 - broadly handle any import problem
     pytesseract = None
 
@@ -77,7 +79,10 @@ class SystemMonitor:
         self._stop = threading.Event()
         self._screenshot_thread = None
 
-        self._last_clipboard = pyperclip.paste() if pyperclip else ""
+        try:
+            self._last_clipboard = pyperclip.paste() if pyperclip else ""
+        except Exception:
+            self._last_clipboard = ""
 
         if keyboard:
             keyboard.hook(self._on_keyboard)

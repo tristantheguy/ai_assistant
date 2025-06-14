@@ -96,6 +96,19 @@ class SystemMonitorTest(unittest.TestCase):
             monitor = sm.SystemMonitor()
             self.assertIsNone(sm.keyboard)
             self.assertIsNone(sm.mouse)
+    def test_import_without_tesseract_cmd(self):
+        import importlib
+        import system_monitor as sm
+        import os
+        os.environ.pop("TESSERACT_CMD", None)
+        importlib.reload(sm)
+        monitor = sm.SystemMonitor.__new__(sm.SystemMonitor)
+        import threading
+        monitor._stop = threading.Event()
+        monitor._screenshot_thread = None
+        self.assertTrue(hasattr(sm, "pytesseract"))
+        monitor.observer = None
+        self.assertIsNotNone(monitor)
         importlib.reload(sm)
 
 
