@@ -62,3 +62,7 @@ python discord_bot.py
 ```
 
 Any message sent to the bot is forwarded to `OllamaClient` and the reply is posted back to the channel.
+
+## License
+
+This project is licensed under the terms of the [MIT License](LICENSE).
