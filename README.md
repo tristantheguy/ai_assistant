@@ -3,7 +3,7 @@ This repository contains a simple desktop assistant using PyQt5.
 
 ## Installation
 
-Use pip to install the required packages:
+Use pip to install the required packages **before running any of the scripts or tests**:
 
 ```bash
 pip install -r requirements.txt
