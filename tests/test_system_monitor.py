@@ -99,5 +99,18 @@ class SystemMonitorTest(unittest.TestCase):
         importlib.reload(sm)
 
 
+    def test_init_without_tesseract_env(self):
+        import importlib
+        import os
+        import system_monitor as sm
+
+        with unittest.mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("TESSERACT_CMD", None)
+            importlib.reload(sm)
+            monitor = sm.SystemMonitor()
+            self.assertIsNotNone(monitor)
+        importlib.reload(sm)
+
+
 if __name__ == "__main__":
     unittest.main()

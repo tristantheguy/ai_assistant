@@ -6,6 +6,7 @@ from collections import deque
 from datetime import datetime
 import json
 import threading
+import os
 
 import psutil
 try:
@@ -61,7 +62,9 @@ except Exception:  # noqa: E722 - broadly handle any import problem
 
 try:
     import pytesseract
-    pytesseract.pytesseract.tesseract_cmd = r"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
+    cmd = os.environ.get("TESSERACT_CMD")
+    if cmd:
+        pytesseract.pytesseract.tesseract_cmd = cmd
 except Exception:  # noqa: E722 - broadly handle any import problem
     pytesseract = None
 
@@ -77,7 +80,12 @@ class SystemMonitor:
         self._stop = threading.Event()
         self._screenshot_thread = None
 
-        self._last_clipboard = pyperclip.paste() if pyperclip else ""
+        self._last_clipboard = ""
+        if pyperclip:
+            try:
+                self._last_clipboard = pyperclip.paste()
+            except Exception:
+                self._last_clipboard = ""
 
         if keyboard:
             keyboard.hook(self._on_keyboard)
