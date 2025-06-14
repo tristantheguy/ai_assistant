@@ -52,3 +52,13 @@ The optional `google_voice_assistant.py` script automates texting through
 Google Voice. It defaults to running Chrome in headless mode. Set the
 environment variable `HEADLESS=0` to open a visible browser window so you
 can complete login or any verification steps.
+
+## Discord bot
+
+`discord_bot.py` lets you chat with the assistant through Discord. Set the environment variable `DISCORD_TOKEN` to your bot's token and run:
+
+```bash
+python discord_bot.py
+```
+
+Any message sent to the bot is forwarded to `OllamaClient` and the reply is posted back to the channel.
