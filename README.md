@@ -55,7 +55,7 @@ can complete login or any verification steps.
 
 ## Discord bot
 
-`discord_bot.py` lets you chat with the assistant through Discord. Set the environment variable `DISCORD_TOKEN` to your bot's token and run:
+`discord_bot.py` lets you chat with the assistant through Discord. Set the `DISCORD_TOKEN` environment variable to your bot's token and run:
 
 ```bash
 python discord_bot.py
