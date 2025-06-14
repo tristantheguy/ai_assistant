@@ -9,6 +9,7 @@ from llm_client import OllamaClient
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 intents = discord.Intents.default()
+intents.message_content = True  # allow reading message text
 client = discord.Client(intents=intents)
 llm = OllamaClient()
 
