@@ -1,6 +1,8 @@
 import threading
 import time
 import json
+import sys
+import traceback
 
 from system_monitor import SystemMonitor
 from llm_client import OllamaClient
@@ -31,10 +33,13 @@ class ClippyAgent:
 
     def _loop(self):
         while not self._stop.is_set():
-            snapshot = self.monitor.capture_snapshot()
-            summary = json.dumps(snapshot)
-            response = self.llm.query(summary)
-            self.window.display_message(response)
+            try:
+                snapshot = self.monitor.capture_snapshot()
+                summary = json.dumps(snapshot)
+                response = self.llm.query(summary)
+                self.window.display_message(response)
+            except Exception:  # noqa: E722 - broad catch to keep thread alive
+                traceback.print_exc(file=sys.stderr)
             for _ in range(self.poll_interval):
                 if self._stop.is_set():
                     break

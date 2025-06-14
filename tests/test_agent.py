@@ -2,6 +2,7 @@ from collections import deque
 
 from agent import ClippyAgent
 from system_monitor import SystemMonitor
+import time
 
 
 class DummyWindow:
@@ -48,3 +49,28 @@ def test_handle_text_triggers_memo(tmp_path):
     files = list(tmp_path.iterdir())
     assert files
     assert any("dummy text" in f.read_text() for f in files)
+
+
+def test_loop_continues_on_error(tmp_path):
+    window = DummyWindow()
+    agent = ClippyAgent(window, poll_interval=0)
+    agent.monitor = _make_monitor(tmp_path)
+
+    class FailingLLM:
+        def __init__(self):
+            self.calls = 0
+
+        def query(self, prompt):
+            self.calls += 1
+            if self.calls == 1:
+                raise RuntimeError("fail")
+            return "ok"
+
+    agent.llm = FailingLLM()
+
+    agent.start()
+    time.sleep(0.05)
+    assert agent.thread.is_alive()
+    time.sleep(0.05)
+    assert window.last == "ok"
+    agent.stop()
