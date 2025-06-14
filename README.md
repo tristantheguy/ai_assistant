@@ -1,6 +1,20 @@
 # ai_assistant
 This repository contains a simple desktop assistant using PyQt5.
 
+## Installation
+
+Create a virtual environment and install the required packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+Run the test suite to verify everything works:
+
+```bash
+pytest -q
+```
+
 The `SystemMonitor` component now tracks:
 
 - Active window title and application name (using `pygetwindow`, `pywin32`, or `pywinauto` when available).
@@ -52,3 +66,11 @@ The optional `google_voice_assistant.py` script automates texting through
 Google Voice. It defaults to running Chrome in headless mode. Set the
 environment variable `HEADLESS=0` to open a visible browser window so you
 can complete login or any verification steps.
+
+`SystemMonitor` uses pytesseract for OCR. If the `tesseract` executable isn't
+found automatically, set the environment variable `TESSERACT_CMD` to its full
+path.
+
+## License
+
+This project is licensed under the terms of the [MIT License](LICENSE).
