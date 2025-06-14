@@ -28,8 +28,6 @@ def _monitor_loop():
         time.sleep(10)
 
 
-_monitor_thread = threading.Thread(target=_monitor_loop, daemon=True)
-_monitor_thread.start()
 
 async def handle_message(message: discord.Message) -> None:
     """Process a Discord message."""
@@ -58,5 +56,9 @@ async def on_message(message: discord.Message):
 if __name__ == "__main__":
     if not TOKEN:
         raise RuntimeError("DISCORD_TOKEN environment variable not set")
+
+    _monitor_thread = threading.Thread(target=_monitor_loop, daemon=True)
+    _monitor_thread.start()
+
     client.run(TOKEN)
 
