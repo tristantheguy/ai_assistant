@@ -11,6 +11,5 @@ pyperclip
 pygetwindow
 pywinauto
 watchdog
-pywin32
 keyboard
 mouse
