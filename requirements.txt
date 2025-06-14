@@ -1,0 +1,12 @@
+psutil
+requests
+pytesseract
+pillow
+pyautogui
+pyperclip
+watchdog
+pygetwindow
+pywinauto
+keyboard
+mouse
+
