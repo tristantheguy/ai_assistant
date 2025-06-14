@@ -52,3 +52,7 @@ The optional `google_voice_assistant.py` script automates texting through
 Google Voice. It defaults to running Chrome in headless mode. Set the
 environment variable `HEADLESS=0` to open a visible browser window so you
 can complete login or any verification steps.
+
+`SystemMonitor` uses pytesseract for OCR. If the `tesseract` executable isn't
+found automatically, set the environment variable `TESSERACT_CMD` to its full
+path.
