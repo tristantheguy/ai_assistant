@@ -75,6 +75,9 @@ Set the `DISCORD_TOKEN` environment variable with your bot token before running.
 The bot requires the **Message Content Intent** to read text in channels, so
 enable that permission in the Discord developer portal.
 
+The bot also starts a small `SystemMonitor` thread. Type `!status` in any channel
+to see a summary of recent window titles, inputs, and clipboard changes.
+
 ## License
 
 This project is licensed under the terms of the [MIT License](LICENSE).
