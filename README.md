@@ -56,3 +56,7 @@ can complete login or any verification steps.
 `SystemMonitor` uses pytesseract for OCR. If the `tesseract` executable isn't
 found automatically, set the environment variable `TESSERACT_CMD` to its full
 path.
+
+## License
+
+This project is licensed under the terms of the [MIT License](LICENSE).
