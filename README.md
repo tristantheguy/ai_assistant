@@ -46,3 +46,7 @@ Use `SystemMonitor.save_screen_memo()` to capture on-screen text and save it in 
 
 `SystemMonitor.scan_processes()` performs a simple heuristic check for suspicious processes based on keywords like "malware" or "virus".
 
+
+## License
+
+This project is licensed under the terms of the [MIT License](LICENSE).
