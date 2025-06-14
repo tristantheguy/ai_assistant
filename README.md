@@ -55,13 +55,15 @@ can complete login or any verification steps.
 
 ## Discord bot
 
-`discord_bot.py` lets you chat with the assistant through Discord. Set the `DISCORD_TOKEN` environment variable to your bot's token and run:
+`discord_bot.py` lets you chat with the assistant through Discord. Set the
+`DISCORD_TOKEN` environment variable to your bot's token, then run:
 
 ```bash
 python discord_bot.py
 ```
 
-Any message sent to the bot is forwarded to `OllamaClient` and the reply is posted back to the channel.
+Any message sent to the bot is forwarded to `OllamaClient`, and the reply is
+posted back to the channel.
 
 ## License
 
