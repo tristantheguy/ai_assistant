@@ -9,6 +9,12 @@ Create a virtual environment and install the required packages:
 pip install -r requirements.txt
 ```
 
+Run the test suite to verify everything works:
+
+```bash
+pytest -q
+```
+
 The `SystemMonitor` component now tracks:
 
 - Active window title and application name (using `pygetwindow`, `pywin32`, or `pywinauto` when available).
