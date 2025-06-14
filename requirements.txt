@@ -1,0 +1,14 @@
+psutil
+requests
+schedule
+selenium
+PyQt5
+pillow
+pytesseract
+discord.py
+pyautogui
+pyperclip
+pygetwindow
+pywinauto
+watchdog
+pywin32

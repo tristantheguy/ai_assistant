@@ -1,6 +1,15 @@
 # ai_assistant
 This repository contains a simple desktop assistant using PyQt5.
 
+## Installation
+
+Use pip to install the required packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+
 The `SystemMonitor` component now tracks:
 
 - Active window title and application name (using `pygetwindow`, `pywin32`, or `pywinauto` when available).
