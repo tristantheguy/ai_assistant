@@ -72,7 +72,13 @@ interval.
 `OllamaClient` now accepts a `system_prompt` argument. This optional string
 sets the initial system message used for every conversation. If omitted, the
 client defaults to "You are a helpful assistant." Passing a different value lets
-you customize the assistant's personality.
+you customize the assistant's personality. `ClippyAgent` uses a snarky
+tsundere style by default:
+
+```
+You’re Clippy with a tsundere streak—snarky but still helpful. Offer advice
+grudgingly in one or two sentences.
+```
 
 Use `OllamaClient.add_context(text)` to append additional system messages
 without making an API request. `ClippyAgent` relies on this to feed each
