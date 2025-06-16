@@ -60,3 +60,23 @@ def test_close_window_by_name(monkeypatch):
     assert system_controller.close_window_by_name('Calculator')
     assert calls['title'] == 'Calculator'
     assert calls['closed']
+
+
+def test_close_window_by_name_psutil(monkeypatch):
+    terminations = []
+
+    class DummyProc:
+        def __init__(self, name):
+            self.info = {'name': name}
+
+        def terminate(self):
+            terminations.append(self.info['name'])
+
+    def fake_iter(attrs):
+        return [DummyProc('calc.exe'), DummyProc('notepad.exe')]
+
+    monkeypatch.setattr(system_controller, 'Application', None)
+    monkeypatch.setattr(system_controller, 'psutil', SimpleNamespace(process_iter=fake_iter))
+
+    assert system_controller.close_window_by_name('calc')
+    assert 'calc.exe' in terminations

@@ -12,6 +12,11 @@ try:
 except Exception:
     Application = None
 
+try:
+    import psutil
+except Exception:
+    psutil = None
+
 
 def open_file(path):
     """Open a file or folder with the default application."""
@@ -47,15 +52,30 @@ def close_active_window():
     return False
 
 
-def close_window_by_name(name: str) -> bool:
-    """Close a window matching ``name`` using pywinauto when available."""
+def close_window_by_name(app_name: str) -> bool:
+    """Close a window or process matching ``app_name``.
+
+    Uses ``pywinauto`` to close the first window whose title matches
+    ``app_name`` when available. If that fails, ``psutil`` is used to
+    terminate a process whose name contains ``app_name``.
+    """
     if Application:
         try:
-            app = Application().connect(title_re=name)
+            app = Application().connect(title_re=app_name)
             app.top_window().close()
             return True
         except Exception:
             pass
+
+    if psutil:
+        for proc in psutil.process_iter(["name"]):
+            try:
+                if app_name.lower() in (proc.info.get("name") or "").lower():
+                    proc.terminate()
+                    return True
+            except Exception:
+                continue
+
     return False
 
 
