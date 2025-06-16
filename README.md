@@ -17,7 +17,7 @@ pytest
 
 You can optionally set the `TESSERACT_CMD` environment variable if Tesseract OCR is installed in a non-standard location.
 
-The GUI file browser defaults to `~/Documents/AI Assistant`. Set the `AI_ASSISTANT_FOLDER` environment variable or pass `folder_path` to `CodeAssistantGUI` to use a different directory.
+The GUI file browser defaults to `Path.home() / "Documents" / "AI Assistant"`. Set the `AI_ASSISTANT_FOLDER` environment variable or pass `folder_path` to `CodeAssistantGUI` to use a different directory.
 
 The `SystemMonitor` component now tracks:
 

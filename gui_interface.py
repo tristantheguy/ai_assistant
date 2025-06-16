@@ -16,10 +16,13 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QTimer, QSize
 
 # Constants for file filtering and LLM API
-# Default folder is "~/Documents/AI Assistant" but can be overridden via the
-# AI_ASSISTANT_FOLDER environment variable or a constructor argument.
+# Default folder resolves to the user's Documents directory using ``pathlib``
+# but can be overridden via the ``AI_ASSISTANT_FOLDER`` environment variable or
+# a ``folder_path`` argument to ``CodeAssistantGUI``.
 DEFAULT_FOLDER = Path.home() / "Documents" / "AI Assistant"
-FOLDER_PATH = Path(os.getenv("AI_ASSISTANT_FOLDER", DEFAULT_FOLDER)).expanduser()
+
+env_folder = os.getenv("AI_ASSISTANT_FOLDER")
+FOLDER_PATH = Path(env_folder).expanduser() if env_folder else DEFAULT_FOLDER
 ALLOWED_EXTENSIONS = [".py", ".java", ".cpp", ".js", ".html", ".cs"]
 LLM_API_URL = "http://localhost:11434/api/chat"
 
