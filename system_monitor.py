@@ -321,9 +321,54 @@ class SystemMonitor:
     def summarize(self):
         """Return a plain-language summary of recent events."""
         self._prune_history()
-        lines = [e[1] for e in self.events]
-        summary = "\n".join(lines)
-        return f"Recent activity ({datetime.now().strftime('%H:%M:%S')}):\n{summary}"
+        self._check_clipboard()
+
+        title, app = self._get_active_window_info()
+
+        key_count = 0
+        move_count = 0
+        clipboard_text = None
+        for _, msg in self.events:
+            if msg.startswith("Pressed key"):
+                key_count += 1
+            elif msg.startswith("Mouse move"):
+                move_count += 1
+            elif msg.startswith("Copied text:"):
+                clipboard_text = msg[13:-1]
+
+        names = []
+        for proc in psutil.process_iter(["name"]):
+            try:
+                name = proc.info.get("name") or ""
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+            if name in ("", "System", "System Idle Process"):
+                continue
+            if name not in names:
+                names.append(name)
+
+        first = names[:2]
+        remaining = len(names) - len(first)
+        if remaining > 0:
+            apps_summary = f"{', '.join(first)}, and {remaining} other{'s' if remaining != 1 else ''}"
+        else:
+            apps_summary = ", ".join(first)
+
+        parts = [f"Focused window: {title} ({app})."]
+
+        events = []
+        if key_count:
+            events.append(f"{key_count} key{'s' if key_count != 1 else ''} pressed")
+        if move_count:
+            events.append(f"{move_count} mouse move{'s' if move_count != 1 else ''}")
+        if events:
+            parts.append(", ".join(events) + ".")
+        if clipboard_text:
+            parts.append(f"Clipboard: '{clipboard_text}'.")
+        if apps_summary:
+            parts.append(f"Running apps: {apps_summary}.")
+
+        return " ".join(parts)
 
     def to_json(self):
         """Return a structured summary of recent events."""
