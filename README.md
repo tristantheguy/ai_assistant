@@ -88,7 +88,18 @@ system snapshot into the conversation history.
 
 Use `SystemMonitor.save_screen_memo()` to capture on-screen text and save it in the `ai_memos` folder. The helper `memo_utils.save_memo()` writes a timestamped file with a descriptive name. Typing **memo**, **remember**, or **note** in the assistant's text box automatically triggers this capture. Pass `allow_empty=True` to `save_screen_memo` to force a memo even when OCR text can't be captured (e.g. if dependencies are missing).
 
+
 `SystemMonitor.scan_processes()` performs a simple heuristic check for suspicious processes based on keywords like "malware" or "virus".
+
+## Basic system control
+
+`assistant_core.AIAssistant` understands a few shell-like commands:
+
+- `open <path>` launches a file or folder using the default application.
+- `close` attempts to close the active window (requires `pyautogui` or `pywinauto`).
+- `start <command>` spawns a new process via `subprocess`.
+
+These helpers live in `system_controller.py`.
 
 ## Google Voice assistant (removed)
 
@@ -113,7 +124,7 @@ The minimal `requirements.txt` keeps dependencies small. Install these extras to
 - `PyQt5` for the desktop GUI
 - `pyautogui` or `Pillow` to take screenshots
 - `pytesseract` for OCR on those images
-- `watchdog`, `pyperclip`, `pygetwindow`, and `pywin32` improve monitoring when present
+- `watchdog`, `pyperclip`, `pygetwindow`, `pywin32`, and `pywinauto` improve monitoring when present
 
 The test suite automatically skips GUI and screenshot features when these packages are missing.
 
