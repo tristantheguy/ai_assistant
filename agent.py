@@ -57,7 +57,12 @@ class ClippyAgent:
             try:
                 snapshot = self.monitor.capture_snapshot()
                 now = time.time()
-                changed = snapshot != self._last_snapshot
+                if self._last_snapshot is None:
+                    changed = True
+                else:
+                    prev = {k: v for k, v in self._last_snapshot.items() if k != "timestamp"}
+                    curr = {k: v for k, v in snapshot.items() if k != "timestamp"}
+                    changed = curr != prev
                 timed_out = (
                     self.notify_interval is not None
                     and now - self._last_message_time >= self.notify_interval
