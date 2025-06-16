@@ -130,3 +130,17 @@ def test_handle_message_close_command(monkeypatch):
 
     assert calls['name'] == 'calc'
     assert not discord_bot._agents
+
+
+def test_handle_message_close_active_window(monkeypatch):
+    _reset_agents()
+    channel = DummyChannel()
+    message = SimpleNamespace(author=DummyAuthor(), content="close", channel=channel)
+
+    calls = {}
+    monkeypatch.setattr(discord_bot.system_controller, 'close_active_window', lambda: calls.setdefault('called', True))
+
+    asyncio.run(discord_bot.handle_message(message))
+
+    assert calls.get('called')
+    assert not discord_bot._agents
