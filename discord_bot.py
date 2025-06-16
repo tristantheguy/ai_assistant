@@ -66,12 +66,16 @@ async def handle_message(message: discord.Message) -> None:
     content = message.content
     logging.info("Command received: %s", content)
     lower = content.lower().strip()
-    if lower == "!status":
+    if (
+        lower == "!status"
+        or "screen status" in lower
+        or re.search(r"what[’']?s on the screen", lower)
+    ):
         monitor.capture_snapshot()
         await message.channel.send(monitor.summarize())
         return
 
-    m = re.match(r"open\s+(.+)", content, re.I)
+    m = re.search(r"\bopen\s+(.+)", content, re.I)
     if m:
         path = m.group(1).strip()
         logging.info("Calling open_file(%s)", path)
@@ -80,7 +84,7 @@ async def handle_message(message: discord.Message) -> None:
         await message.channel.send("Opened." if success else "Failed to open.")
         return
 
-    m = re.match(r"start\s+(.+)", content, re.I)
+    m = re.search(r"\bstart\s+(.+)", content, re.I)
     if m:
         cmd = m.group(1).strip()
         logging.info("Calling start_process(%s)", cmd)
@@ -91,7 +95,7 @@ async def handle_message(message: discord.Message) -> None:
         )
         return
 
-    if lower == "close":
+    if lower.strip() == "close":
         logging.info("Calling close_active_window()")
         success = system_controller.close_active_window()
         logging.info("close_active_window returned %s", success)
@@ -100,7 +104,7 @@ async def handle_message(message: discord.Message) -> None:
         )
         return
 
-    m = re.match(r"close\s+(.+)", content, re.I)
+    m = re.search(r"\bclose\s+(.+)", content, re.I)
     if m:
         name = m.group(1).strip()
         logging.info("Calling close_window_by_name(%s)", name)

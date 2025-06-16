@@ -116,9 +116,10 @@ The bot requires the **Message Content Intent** to read text in channels, so
 enable that permission in the Discord developer portal.
 
 The bot also starts a small `SystemMonitor` thread. Type `!status` in any channel
-to see a summary of recent window titles, inputs, and clipboard changes.
-It also recognizes simple phrases like `open <path>`, `start <cmd>`, and
-`close <title>` to control the host system directly. Use `start` for applications
+or ask “what’s on the screen”/“screen status” to see a summary of recent window
+titles, inputs, and clipboard changes. It also recognizes simple phrases like
+`open <path>`, `start <cmd>`, and `close <title>` to control the host system
+directly even when the words appear mid-sentence. Use `start` for applications
 (`start chrome`) and `open` for files or folders. `close <title>` attempts to
 terminate all matching processes when possible.
 

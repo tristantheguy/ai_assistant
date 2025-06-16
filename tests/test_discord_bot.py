@@ -84,6 +84,17 @@ def test_handle_message_status(monkeypatch):
     assert channel.sent == ["summary"]
 
 
+def test_handle_message_status_synonyms(monkeypatch):
+    _reset_agents()
+    dummy_monitor = SimpleNamespace(summarize=lambda: "summary", capture_snapshot=lambda: None)
+    monkeypatch.setattr(discord_bot, "monitor", dummy_monitor)
+    for text in ["what's on the screen?", "please show screen status"]:
+        channel = DummyChannel()
+        message = SimpleNamespace(author=DummyAuthor(), content=text, channel=channel)
+        asyncio.run(discord_bot.handle_message(message))
+        assert channel.sent == ["summary"]
+
+
 def test_monitor_thread_start_stop():
     t = discord_bot.start_monitor_thread()
     assert t.is_alive()
@@ -93,7 +104,7 @@ def test_monitor_thread_start_stop():
 def test_handle_message_open_command(monkeypatch):
     _reset_agents()
     channel = DummyChannel()
-    message = SimpleNamespace(author=DummyAuthor(), content="open foo.txt", channel=channel)
+    message = SimpleNamespace(author=DummyAuthor(), content="please open foo.txt", channel=channel)
 
     calls = {}
     monkeypatch.setattr(discord_bot.system_controller, 'open_file', lambda p: calls.setdefault('path', p))
@@ -108,7 +119,7 @@ def test_handle_message_open_command(monkeypatch):
 def test_handle_message_start_command(monkeypatch):
     _reset_agents()
     channel = DummyChannel()
-    message = SimpleNamespace(author=DummyAuthor(), content="start echo hi", channel=channel)
+    message = SimpleNamespace(author=DummyAuthor(), content="could you start echo hi", channel=channel)
 
     calls = {}
     monkeypatch.setattr(discord_bot.system_controller, 'start_process', lambda c: calls.setdefault('cmd', c))
@@ -123,7 +134,7 @@ def test_handle_message_start_command(monkeypatch):
 def test_handle_message_close_command(monkeypatch):
     _reset_agents()
     channel = DummyChannel()
-    message = SimpleNamespace(author=DummyAuthor(), content="close calc", channel=channel)
+    message = SimpleNamespace(author=DummyAuthor(), content="please close calc", channel=channel)
 
     calls = {}
     monkeypatch.setattr(discord_bot.system_controller, 'close_window_by_name', lambda n: calls.setdefault('name', n))
