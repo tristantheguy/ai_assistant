@@ -69,13 +69,14 @@ async def handle_message(message: discord.Message) -> None:
     if (
         lower == "!status"
         or "screen status" in lower
-        or re.search(r"what[’']?s on the screen", lower)
+        or re.search(r"what[’']?s on (?:the |my )?screen", lower)
+        or re.search(r"what[’']?s on (?:the |my )?desktop", lower)
     ):
         monitor.capture_snapshot()
         await message.channel.send(monitor.summarize())
         return
 
-    m = re.search(r"\bopen\s+(.+)", content, re.I)
+    m = re.match(r"\s*(?:please|could you|can you|would you)?\s*open\s+(.+)", content, re.I)
     if m:
         path = m.group(1).strip()
         logging.info("Calling open_file(%s)", path)
@@ -84,7 +85,7 @@ async def handle_message(message: discord.Message) -> None:
         await message.channel.send("Opened." if success else "Failed to open.")
         return
 
-    m = re.search(r"\bstart\s+(.+)", content, re.I)
+    m = re.match(r"\s*(?:please|could you|can you|would you)?\s*start\s+(.+)", content, re.I)
     if m:
         cmd = m.group(1).strip()
         logging.info("Calling start_process(%s)", cmd)
@@ -104,7 +105,7 @@ async def handle_message(message: discord.Message) -> None:
         )
         return
 
-    m = re.search(r"\bclose\s+(.+)", content, re.I)
+    m = re.match(r"\s*(?:please|could you|can you|would you)?\s*close\s+(.+)", content, re.I)
     if m:
         name = m.group(1).strip()
         logging.info("Calling close_window_by_name(%s)", name)

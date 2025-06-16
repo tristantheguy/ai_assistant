@@ -88,7 +88,12 @@ def test_handle_message_status_synonyms(monkeypatch):
     _reset_agents()
     dummy_monitor = SimpleNamespace(summarize=lambda: "summary", capture_snapshot=lambda: None)
     monkeypatch.setattr(discord_bot, "monitor", dummy_monitor)
-    for text in ["what's on the screen?", "please show screen status"]:
+    for text in [
+        "what's on the screen?",
+        "please show screen status",
+        "what's on my desktop",
+        "what's on the desktop",
+    ]:
         channel = DummyChannel()
         message = SimpleNamespace(author=DummyAuthor(), content=text, channel=channel)
         asyncio.run(discord_bot.handle_message(message))
@@ -159,3 +164,30 @@ def test_handle_message_close_active_window(monkeypatch):
     assert calls.get('called')
     assert channel.sent == ["Closed active window."]
     assert not discord_bot._agents
+
+
+def test_handle_message_ignore_open_in_sentence(monkeypatch):
+    _reset_agents()
+    channel = DummyChannel()
+    message = SimpleNamespace(author=DummyAuthor(), content="I am open to suggestions", channel=channel)
+
+    calls = {}
+    monkeypatch.setattr(discord_bot.system_controller, 'open_file', lambda p: calls.setdefault('path', p))
+
+    class DummyClippy:
+        def __init__(self, window, *a, **kw):
+            self.window = window
+            self.monitor = SimpleNamespace(save_screen_memo=lambda **k: None)
+
+        def start(self):
+            pass
+
+        def handle_text(self, text):
+            self.window.display_message("reply")
+
+    monkeypatch.setattr(discord_bot.discord_agent, "ClippyAgent", DummyClippy)
+
+    asyncio.run(discord_bot.handle_message(message))
+
+    assert 'path' not in calls
+    assert channel.sent == ["reply"]
