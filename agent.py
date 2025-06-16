@@ -16,7 +16,7 @@ class ClippyAgent:
         window,
         poll_interval: int = 10,
         error_reporter: ErrorReporter | None = None,
-        notify_interval: int | None = 60,
+        notify_interval: int | None = None,
     ) -> None:
         self.window = window
         # Monitor the current directory for file changes as an example
