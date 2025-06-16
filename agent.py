@@ -57,23 +57,15 @@ class ClippyAgent:
         while not self._stop.is_set():
             try:
                 snapshot = self.monitor.capture_snapshot()
-                now = time.time()
                 if self._last_snapshot is None:
                     changed = True
                 else:
                     prev = {k: v for k, v in self._last_snapshot.items() if k != "timestamp"}
                     curr = {k: v for k, v in snapshot.items() if k != "timestamp"}
                     changed = curr != prev
-                timed_out = (
-                    self.notify_interval is not None
-                    and now - self._last_message_time >= self.notify_interval
-                )
-
-                if changed or timed_out:
+                if changed:
                     summary = json.dumps(snapshot)
-                    response = self.llm.query(summary)
-                    self.window.display_message(response)
-                    self._last_message_time = now
+                    self.llm.add_context(summary)
                 self._last_snapshot = snapshot
             except Exception:  # noqa: E722 - broad catch to keep thread alive
                 self._report_exception()
@@ -84,10 +76,17 @@ class ClippyAgent:
 
     def handle_text(self, text):
         """Process text input by querying the LLM and showing the reply."""
+        lower = text.lower().strip()
+
+        if lower == "summary":
+            snapshot = self._last_snapshot or self.monitor.capture_snapshot()
+            reply = self.llm.query(json.dumps(snapshot))
+            self.window.display_message(reply)
+            return
+
         reply = self.llm.query(text)
         self.window.display_message(reply)
 
-        lower = text.lower()
         if any(k in lower for k in ["memo", "remember", "note"]):
             try:
                 self.monitor.save_screen_memo(label=text, allow_empty=True)
