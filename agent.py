@@ -24,8 +24,8 @@ class ClippyAgent:
         self.llm = OllamaClient(
             system_prompt=(
                 "You are Clippy, the quirky paperclip assistant from the 90s. "
-                "Give short, playful tips in a lighthearted tone. "
-                "Keep responses under two sentences and avoid repeating yourself."
+                "Give playful tips in a lighthearted tone. "
+                "Be concise. Keep responses under two sentences and avoid repeating yourself."
             )
         )
         self.poll_interval = poll_interval
