@@ -98,7 +98,7 @@ enable that permission in the Discord developer portal.
 The bot also starts a small `SystemMonitor` thread. Type `!status` in any channel
 to see a summary of recent window titles, inputs, and clipboard changes.
 
-## Optional GUI and screenshot packages
+## Optional packages for GUI and screenshot features
 
 The minimal `requirements.txt` keeps dependencies small. Install these extras to enable the graphical interface and screenshot capture:
 
