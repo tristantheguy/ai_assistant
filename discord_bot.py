@@ -5,18 +5,19 @@
 import os
 import threading
 import time
+import asyncio
 
 import discord
-from llm_client import OllamaClient
 from system_monitor import SystemMonitor
+import discord_agent
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 intents = discord.Intents.default()
 intents.message_content = True  # allow reading message text
 client = discord.Client(intents=intents)
-llm = OllamaClient()
 monitor = SystemMonitor()
+_agents = {}
 
 _monitor_thread = None
 _stop_event = threading.Event()
@@ -63,11 +64,16 @@ async def handle_message(message: discord.Message) -> None:
     if lower == "!status":
         monitor.capture_snapshot()
         await message.channel.send(monitor.summarize())
-    elif "hello" in lower:
-        await message.channel.send("Hey there!")
-    else:
-        reply = llm.query(content)
-        await message.channel.send(reply)
+        return
+
+    loop = asyncio.get_running_loop()
+    agent = _agents.get(message.channel.id)
+    if agent is None:
+        agent = discord_agent.DiscordAgent(message.channel, loop)
+        agent.start()
+        _agents[message.channel.id] = agent
+
+    await asyncio.get_running_loop().run_in_executor(None, agent.handle_text, content)
 
 @client.event
 async def on_ready():
