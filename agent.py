@@ -11,7 +11,13 @@ from error_handler import ErrorReporter
 class ClippyAgent:
     """Core logic combining monitoring, LLM querying and UI updates."""
 
-    def __init__(self, window, poll_interval=10, error_reporter: ErrorReporter | None = None):
+    def __init__(
+        self,
+        window,
+        poll_interval: int = 10,
+        error_reporter: ErrorReporter | None = None,
+        notify_interval: int | None = 60,
+    ) -> None:
         self.window = window
         # Monitor the current directory for file changes as an example
         self.monitor = SystemMonitor(watch_paths=["."])
@@ -22,6 +28,9 @@ class ClippyAgent:
             )
         )
         self.poll_interval = poll_interval
+        self.notify_interval = notify_interval
+        self._last_snapshot: dict | None = None
+        self._last_message_time = 0.0
         self._stop = threading.Event()
         self._reporter = error_reporter
 
@@ -47,9 +56,19 @@ class ClippyAgent:
         while not self._stop.is_set():
             try:
                 snapshot = self.monitor.capture_snapshot()
-                summary = json.dumps(snapshot)
-                response = self.llm.query(summary)
-                self.window.display_message(response)
+                now = time.time()
+                changed = snapshot != self._last_snapshot
+                timed_out = (
+                    self.notify_interval is not None
+                    and now - self._last_message_time >= self.notify_interval
+                )
+
+                if changed or timed_out:
+                    summary = json.dumps(snapshot)
+                    response = self.llm.query(summary)
+                    self.window.display_message(response)
+                    self._last_message_time = now
+                self._last_snapshot = snapshot
             except Exception:  # noqa: E722 - broad catch to keep thread alive
                 self._report_exception()
             for _ in range(self.poll_interval):
