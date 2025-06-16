@@ -74,3 +74,38 @@ def test_loop_continues_on_error(tmp_path):
     time.sleep(0.05)
     assert window.last == "ok"
     agent.stop()
+
+
+def test_loop_continues_with_reporter(tmp_path):
+    window = DummyWindow()
+
+    class DummyReporter:
+        def __init__(self):
+            self.count = 0
+
+        def handle_exception(self):
+            self.count += 1
+
+    reporter = DummyReporter()
+    agent = ClippyAgent(window, poll_interval=0, error_reporter=reporter)
+    agent.monitor = _make_monitor(tmp_path)
+
+    class FailingLLM:
+        def __init__(self):
+            self.calls = 0
+
+        def query(self, prompt):
+            self.calls += 1
+            if self.calls == 1:
+                raise RuntimeError("fail")
+            return "ok"
+
+    agent.llm = FailingLLM()
+
+    agent.start()
+    time.sleep(0.05)
+    assert agent.thread.is_alive()
+    time.sleep(0.05)
+    assert reporter.count == 1
+    assert window.last == "ok"
+    agent.stop()

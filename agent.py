@@ -6,11 +6,12 @@ import traceback
 
 from system_monitor import SystemMonitor
 from llm_client import OllamaClient
+from error_handler import ErrorReporter
 
 class ClippyAgent:
     """Core logic combining monitoring, LLM querying and UI updates."""
 
-    def __init__(self, window, poll_interval=10):
+    def __init__(self, window, poll_interval=10, error_reporter: ErrorReporter | None = None):
         self.window = window
         # Monitor the current directory for file changes as an example
         self.monitor = SystemMonitor(watch_paths=["."])
@@ -22,6 +23,17 @@ class ClippyAgent:
         )
         self.poll_interval = poll_interval
         self._stop = threading.Event()
+        self._reporter = error_reporter
+
+    def _report_exception(self) -> None:
+        """Log current exception using the reporter if available."""
+        if self._reporter is not None:
+            try:
+                self._reporter.handle_exception()
+            except Exception:
+                traceback.print_exc(file=sys.stderr)
+        else:
+            traceback.print_exc(file=sys.stderr)
 
     def start(self):
         self.thread = threading.Thread(target=self._loop, daemon=True)
@@ -39,7 +51,7 @@ class ClippyAgent:
                 response = self.llm.query(summary)
                 self.window.display_message(response)
             except Exception:  # noqa: E722 - broad catch to keep thread alive
-                traceback.print_exc(file=sys.stderr)
+                self._report_exception()
             for _ in range(self.poll_interval):
                 if self._stop.is_set():
                     break
