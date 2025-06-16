@@ -41,10 +41,9 @@ class OllamaClient:
                 except json.JSONDecodeError:
                     continue
             reply = "".join(parts)
-            self._messages.append({"role": "assistant", "content": reply})
-            return reply
+        else:
+            data = resp.json()
+            reply = data.get("message", {}).get("content", "")
 
-        data = resp.json()
-        reply = data.get("message", {}).get("content", "")
         self._messages.append({"role": "assistant", "content": reply})
         return reply
