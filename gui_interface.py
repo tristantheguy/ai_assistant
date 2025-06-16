@@ -6,6 +6,7 @@ import os
 import json
 import re
 import requests
+from pathlib import Path
 from PyQt5.QtWidgets import (
     QFileDialog, QApplication, QMainWindow, QPushButton,
     QTextEdit, QLabel, QVBoxLayout, QWidget, QMessageBox,
@@ -15,14 +16,18 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QTimer, QSize
 
 # Constants for file filtering and LLM API
-FOLDER_PATH = "/mnt/c/Users/hjgkkghj/Documents/AI Assistant"
+# Default folder is "~/Documents/AI Assistant" but can be overridden via the
+# AI_ASSISTANT_FOLDER environment variable or a constructor argument.
+DEFAULT_FOLDER = Path.home() / "Documents" / "AI Assistant"
+FOLDER_PATH = Path(os.getenv("AI_ASSISTANT_FOLDER", DEFAULT_FOLDER)).expanduser()
 ALLOWED_EXTENSIONS = [".py", ".java", ".cpp", ".js", ".html", ".cs"]
 LLM_API_URL = "http://localhost:11434/api/chat"
 
 
 class CodeAssistantGUI(QMainWindow):
-    def __init__(self):
+    def __init__(self, folder_path=None):
         super().__init__()
+        self.folder_path = Path(folder_path).expanduser() if folder_path else FOLDER_PATH
         self.setWindowTitle("AI Code Assistant")
         self.setGeometry(100, 100, 800, 500)
 
@@ -73,20 +78,20 @@ class CodeAssistantGUI(QMainWindow):
     def _populate_file_list(self):
         """Lists allowed files in the directory."""
         self.file_list.clear()
-        for root, _, files in os.walk(FOLDER_PATH):
+        for root, _, files in os.walk(self.folder_path):
             for file in files:
                 if any(file.endswith(ext) for ext in ALLOWED_EXTENSIONS):
-                    rel_path = os.path.relpath(os.path.join(root, file), FOLDER_PATH)
+                    rel_path = os.path.relpath(os.path.join(root, file), self.folder_path)
                     self.file_list.addItem(rel_path)
 
     def _browse_files(self):
         """Allows user to add files to list via file dialog."""
         files, _ = QFileDialog.getOpenFileNames(
-            self, "Open Files", FOLDER_PATH,
+            self, "Open Files", str(self.folder_path),
             "All Supported Files (*.py *.java *.cpp *.js *.html *.cs)"
         )
         for file_path in files:
-            rel_path = os.path.relpath(file_path, FOLDER_PATH)
+            rel_path = os.path.relpath(file_path, self.folder_path)
             if rel_path not in [self.file_list.item(i).text() for i in range(self.file_list.count())]:
                 self.file_list.addItem(rel_path)
         if files:
@@ -133,7 +138,7 @@ class CodeAssistantGUI(QMainWindow):
         """Triggers the analyze process for the selected file."""
         selected = self.file_list.currentItem()
         if selected:
-            file_path = os.path.join(FOLDER_PATH, selected.text())
+            file_path = os.path.join(self.folder_path, selected.text())
             content = self._read_file_content(file_path)
             instruction, ok = QInputDialog.getText(self, "Analysis Instruction", "What should I analyze?")
             if ok and instruction:
@@ -148,7 +153,7 @@ class CodeAssistantGUI(QMainWindow):
         """Triggers the edit process with a prompt."""
         selected = self.file_list.currentItem()
         if selected:
-            file_path = os.path.join(FOLDER_PATH, selected.text())
+            file_path = os.path.join(self.folder_path, selected.text())
             content = self._read_file_content(file_path)
             instruction, ok = QInputDialog.getText(self, "Edit Instruction", "Describe the changes:")
             if ok and instruction:
