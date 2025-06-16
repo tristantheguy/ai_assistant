@@ -61,6 +61,10 @@ extra context. They no longer trigger automatic replies. To see a quick recap
 of the latest snapshot, type **summary** in the text box and the assistant will
 respond with a short overview.
 
+`ClippyAgent` normally sends short summaries periodically. Passing
+`notify_interval=None` when creating the agent disables this behavior so you
+don't see duplicate messages if another bot handles notifications.
+
 ### Custom system prompt
 
 `OllamaClient` now accepts a `system_prompt` argument. This optional string
