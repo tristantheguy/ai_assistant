@@ -63,7 +63,9 @@ respond with a short overview.
 
 `ClippyAgent` normally sends short summaries periodically. Passing
 `notify_interval=None` when creating the agent disables this behavior so you
-don't see duplicate messages if another bot handles notifications.
+don't see duplicate messages if another bot handles notifications. The default
+is `None`, so periodic summaries are disabled unless you opt in with a custom
+interval.
 
 ### Custom system prompt
 

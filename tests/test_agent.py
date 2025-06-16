@@ -37,7 +37,7 @@ def _make_monitor(tmp_path):
 
 def test_handle_text_triggers_memo(tmp_path):
     window = DummyWindow()
-    agent = ClippyAgent(window)
+    agent = ClippyAgent(window, notify_interval=None)
     agent.monitor = _make_monitor(tmp_path)
 
     class DummyLLM:
@@ -54,7 +54,7 @@ def test_handle_text_triggers_memo(tmp_path):
 
 def test_loop_continues_on_error(tmp_path):
     window = DummyWindow()
-    agent = ClippyAgent(window, poll_interval=0)
+    agent = ClippyAgent(window, poll_interval=0, notify_interval=None)
     agent.monitor = _make_monitor(tmp_path)
 
     class FailingLLM:
@@ -89,7 +89,7 @@ def test_loop_continues_with_reporter(tmp_path):
             self.count += 1
 
     reporter = DummyReporter()
-    agent = ClippyAgent(window, poll_interval=0, error_reporter=reporter)
+    agent = ClippyAgent(window, poll_interval=0, error_reporter=reporter, notify_interval=None)
     agent.monitor = _make_monitor(tmp_path)
 
     class FailingLLM:
@@ -138,7 +138,7 @@ def test_no_query_on_unchanged_snapshot(tmp_path):
 
 def test_handle_text_summary(tmp_path):
     window = DummyWindow()
-    agent = ClippyAgent(window)
+    agent = ClippyAgent(window, notify_interval=None)
     agent.monitor = _make_monitor(tmp_path)
 
     snapshot = {"foo": "bar"}
