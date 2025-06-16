@@ -8,16 +8,24 @@ import json
 import threading
 import os
 
+import importlib
 import psutil
-try:
-    import keyboard
-except Exception:  # noqa: E722 - broadly handle any import problem
-    keyboard = None
 
 try:
-    import mouse
-except Exception:  # noqa: E722 - broadly handle any import problem
-    mouse = None
+    keyboard = importlib.import_module("keyboard")
+except ImportError:
+    try:
+        keyboard = importlib.import_module("keyboard_stub")
+    except Exception:
+        keyboard = None
+
+try:
+    mouse = importlib.import_module("mouse")
+except ImportError:
+    try:
+        mouse = importlib.import_module("mouse_stub")
+    except Exception:
+        mouse = None
 
 try:
     import win32gui
