@@ -3,6 +3,7 @@ from collections import deque
 from agent import ClippyAgent
 from system_monitor import SystemMonitor
 import time
+import json
 
 
 class DummyWindow:
@@ -60,11 +61,10 @@ def test_loop_continues_on_error(tmp_path):
         def __init__(self):
             self.calls = 0
 
-        def query(self, prompt):
+        def add_context(self, prompt):
             self.calls += 1
             if self.calls == 1:
                 raise RuntimeError("fail")
-            return "ok"
 
     agent.llm = FailingLLM()
 
@@ -72,7 +72,9 @@ def test_loop_continues_on_error(tmp_path):
     time.sleep(0.05)
     assert agent.thread.is_alive()
     time.sleep(0.05)
-    assert window.last == "ok"
+    # add_context should be retried after failure
+    assert agent.llm.calls >= 2
+    assert window.last is None
     agent.stop()
 
 
@@ -94,11 +96,10 @@ def test_loop_continues_with_reporter(tmp_path):
         def __init__(self):
             self.calls = 0
 
-        def query(self, prompt):
+        def add_context(self, prompt):
             self.calls += 1
             if self.calls == 1:
                 raise RuntimeError("fail")
-            return "ok"
 
     agent.llm = FailingLLM()
 
@@ -107,7 +108,8 @@ def test_loop_continues_with_reporter(tmp_path):
     assert agent.thread.is_alive()
     time.sleep(0.05)
     assert reporter.count == 1
-    assert window.last == "ok"
+    # No LLM output shown automatically
+    assert window.last is None
     agent.stop()
 
 
@@ -120,9 +122,8 @@ def test_no_query_on_unchanged_snapshot(tmp_path):
         def __init__(self):
             self.calls = 0
 
-        def query(self, prompt):
+        def add_context(self, prompt):
             self.calls += 1
-            return "ok"
 
     agent.llm = DummyLLM()
 
@@ -133,3 +134,28 @@ def test_no_query_on_unchanged_snapshot(tmp_path):
     agent.stop()
 
     assert first_calls == agent.llm.calls == 1
+
+
+def test_handle_text_summary(tmp_path):
+    window = DummyWindow()
+    agent = ClippyAgent(window)
+    agent.monitor = _make_monitor(tmp_path)
+
+    snapshot = {"foo": "bar"}
+    agent.monitor.capture_snapshot = lambda: snapshot
+    agent._last_snapshot = snapshot
+
+    class DummyLLM:
+        def __init__(self):
+            self.prompt = None
+
+        def query(self, prompt):
+            self.prompt = prompt
+            return "ok"
+
+    agent.llm = DummyLLM()
+
+    agent.handle_text("summary")
+
+    assert agent.llm.prompt == json.dumps(snapshot)
+    assert window.last == "ok"

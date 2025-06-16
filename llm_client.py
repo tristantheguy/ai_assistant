@@ -19,6 +19,10 @@ class OllamaClient:
         self._messages: Deque[Dict[str, Any]] = deque(maxlen=memory)
         self._messages.append({"role": "system", "content": system_prompt})
 
+    def add_context(self, text: str) -> None:
+        """Append a system-level context message without querying the API."""
+        self._messages.append({"role": "system", "content": text})
+
     def query(self, prompt: str, timeout: int = 60) -> str:
         """Send a prompt and update conversation history."""
         self._messages.append({"role": "user", "content": prompt})

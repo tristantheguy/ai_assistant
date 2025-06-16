@@ -47,3 +47,9 @@ def test_stream_response_appends(monkeypatch):
 
     assert reply == "hello world"
     assert client._messages[-1] == {"role": "assistant", "content": "hello world"}
+
+
+def test_add_context():
+    client = OllamaClient()
+    client.add_context("extra")
+    assert client._messages[-1] == {"role": "system", "content": "extra"}

@@ -56,12 +56,21 @@ Enter to send it directly to the LLM. Replies accumulate in the floating window
 so you have a scrollable running log of the conversation. The window can now be
 resized like a normal application.
 
+Snapshots from the `SystemMonitor` are silently appended to the conversation as
+extra context. They no longer trigger automatic replies. To see a quick recap
+of the latest snapshot, type **summary** in the text box and the assistant will
+respond with a short overview.
+
 ### Custom system prompt
 
 `OllamaClient` now accepts a `system_prompt` argument. This optional string
 sets the initial system message used for every conversation. If omitted, the
 client defaults to "You are a helpful assistant." Passing a different value lets
 you customize the assistant's personality.
+
+Use `OllamaClient.add_context(text)` to append additional system messages
+without making an API request. `ClippyAgent` relies on this to feed each
+system snapshot into the conversation history.
 
 ## Memos and process scans
 
