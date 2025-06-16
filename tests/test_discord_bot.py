@@ -49,3 +49,9 @@ def test_handle_message_status(monkeypatch):
     asyncio.run(discord_bot.handle_message(message))
     assert channel.sent == ["summary"]
 
+
+def test_monitor_thread_start_stop():
+    t = discord_bot.start_monitor_thread()
+    assert t.is_alive()
+    discord_bot.stop_monitor_thread()
+
