@@ -73,10 +73,16 @@ def test_close_window_by_name_psutil(monkeypatch):
             terminations.append(self.info['name'])
 
     def fake_iter(attrs):
-        return [DummyProc('calc.exe'), DummyProc('notepad.exe')]
+        return [
+            DummyProc('calc.exe'),
+            DummyProc('calc-helper.exe'),
+            DummyProc('notepad.exe'),
+        ]
 
     monkeypatch.setattr(system_controller, 'Application', None)
     monkeypatch.setattr(system_controller, 'psutil', SimpleNamespace(process_iter=fake_iter))
 
     assert system_controller.close_window_by_name('calc')
     assert 'calc.exe' in terminations
+    assert 'calc-helper.exe' in terminations
+    assert 'notepad.exe' not in terminations
