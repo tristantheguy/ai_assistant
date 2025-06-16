@@ -6,10 +6,12 @@ import os
 import threading
 import time
 import asyncio
+import re
 
 import discord
 from system_monitor import SystemMonitor
 import discord_agent
+import system_controller
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 
@@ -64,6 +66,21 @@ async def handle_message(message: discord.Message) -> None:
     if lower == "!status":
         monitor.capture_snapshot()
         await message.channel.send(monitor.summarize())
+        return
+
+    m = re.match(r"open\s+(.+)", content, re.I)
+    if m:
+        system_controller.open_file(m.group(1).strip())
+        return
+
+    m = re.match(r"start\s+(.+)", content, re.I)
+    if m:
+        system_controller.start_process(m.group(1).strip())
+        return
+
+    m = re.match(r"close\s+(.+)", content, re.I)
+    if m:
+        system_controller.close_window_by_name(m.group(1).strip())
         return
 
     loop = asyncio.get_running_loop()

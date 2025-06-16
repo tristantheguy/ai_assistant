@@ -88,3 +88,45 @@ def test_monitor_thread_start_stop():
     t = discord_bot.start_monitor_thread()
     assert t.is_alive()
     discord_bot.stop_monitor_thread()
+
+
+def test_handle_message_open_command(monkeypatch):
+    _reset_agents()
+    channel = DummyChannel()
+    message = SimpleNamespace(author=DummyAuthor(), content="open foo.txt", channel=channel)
+
+    calls = {}
+    monkeypatch.setattr(discord_bot.system_controller, 'open_file', lambda p: calls.setdefault('path', p))
+
+    asyncio.run(discord_bot.handle_message(message))
+
+    assert calls['path'] == 'foo.txt'
+    assert not discord_bot._agents
+
+
+def test_handle_message_start_command(monkeypatch):
+    _reset_agents()
+    channel = DummyChannel()
+    message = SimpleNamespace(author=DummyAuthor(), content="start echo hi", channel=channel)
+
+    calls = {}
+    monkeypatch.setattr(discord_bot.system_controller, 'start_process', lambda c: calls.setdefault('cmd', c))
+
+    asyncio.run(discord_bot.handle_message(message))
+
+    assert calls['cmd'] == 'echo hi'
+    assert not discord_bot._agents
+
+
+def test_handle_message_close_command(monkeypatch):
+    _reset_agents()
+    channel = DummyChannel()
+    message = SimpleNamespace(author=DummyAuthor(), content="close calc", channel=channel)
+
+    calls = {}
+    monkeypatch.setattr(discord_bot.system_controller, 'close_window_by_name', lambda n: calls.setdefault('name', n))
+
+    asyncio.run(discord_bot.handle_message(message))
+
+    assert calls['name'] == 'calc'
+    assert not discord_bot._agents

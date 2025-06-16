@@ -47,6 +47,18 @@ def close_active_window():
     return False
 
 
+def close_window_by_name(name: str) -> bool:
+    """Close a window matching ``name`` using pywinauto when available."""
+    if Application:
+        try:
+            app = Application().connect(title_re=name)
+            app.top_window().close()
+            return True
+        except Exception:
+            pass
+    return False
+
+
 def start_process(cmd):
     """Start a new process using subprocess."""
     try:
