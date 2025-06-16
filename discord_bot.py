@@ -18,14 +18,38 @@ client = discord.Client(intents=intents)
 llm = OllamaClient()
 monitor = SystemMonitor()
 
+_monitor_thread = None
+_stop_event = threading.Event()
+
 
 def _monitor_loop():
-    while True:
+    while not _stop_event.is_set():
         try:
             monitor.capture_snapshot()
         except Exception:
             pass
-        time.sleep(10)
+        for _ in range(10):
+            if _stop_event.is_set():
+                break
+            time.sleep(1)
+
+
+def start_monitor_thread():
+    """Start the background monitor thread if not already running."""
+    global _monitor_thread
+    if _monitor_thread and _monitor_thread.is_alive():
+        return _monitor_thread
+    _stop_event.clear()
+    _monitor_thread = threading.Thread(target=_monitor_loop, daemon=True)
+    _monitor_thread.start()
+    return _monitor_thread
+
+
+def stop_monitor_thread():
+    """Signal the monitor thread to stop and wait briefly for it."""
+    _stop_event.set()
+    if _monitor_thread:
+        _monitor_thread.join(timeout=0.1)
 
 
 
@@ -57,8 +81,7 @@ if __name__ == "__main__":
     if not TOKEN:
         raise RuntimeError("DISCORD_TOKEN environment variable not set")
 
-    _monitor_thread = threading.Thread(target=_monitor_loop, daemon=True)
-    _monitor_thread.start()
+    start_monitor_thread()
 
     client.run(TOKEN)
 
