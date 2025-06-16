@@ -90,12 +90,12 @@ Use `SystemMonitor.save_screen_memo()` to capture on-screen text and save it in 
 
 `SystemMonitor.scan_processes()` performs a simple heuristic check for suspicious processes based on keywords like "malware" or "virus".
 
-## Google Voice assistant
+## Google Voice assistant (removed)
 
-The optional `google_voice_assistant.py` script automates texting through
-Google Voice. It defaults to running Chrome in headless mode. Set the
-environment variable `HEADLESS=0` to open a visible browser window so you
-can complete login or any verification steps.
+This repository previously included a `google_voice_assistant.py` script that
+automated texting through Google Voice using a headless Chrome browser. The
+feature has been removed and the script no longer exists, so there is currently
+no Google Voice integration.
 
 ## Discord Bot
 Run `discord_bot.py` to enable a chat interface in Discord.
