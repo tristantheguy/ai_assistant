@@ -43,10 +43,13 @@ def test_stream_response_appends(monkeypatch):
     fake_response.raise_for_status.return_value = None
 
     with mock.patch("requests.post", return_value=fake_response):
+        start_len = len(client._messages)
         reply = client.query("hi")
 
     assert reply == "hello world"
     assert client._messages[-1] == {"role": "assistant", "content": "hello world"}
+    # user + assistant messages should be added
+    assert len(client._messages) == start_len + 2
 
 
 def test_add_context():
