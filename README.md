@@ -98,6 +98,7 @@ Use `SystemMonitor.save_screen_memo()` to capture on-screen text and save it in 
 - `open <path>` launches a file or folder using the default application.
 - `close` attempts to close the active window (requires `pyautogui` or `pywinauto`).
 - `start <command>` spawns a new process via `subprocess`.
+- `close <title>` closes a window matching `title` when `pywinauto` is available.
 
 These helpers live in `system_controller.py`.
 
@@ -116,6 +117,8 @@ enable that permission in the Discord developer portal.
 
 The bot also starts a small `SystemMonitor` thread. Type `!status` in any channel
 to see a summary of recent window titles, inputs, and clipboard changes.
+It also recognizes simple phrases like `open <path>`, `start <cmd>`, and
+`close <title>` to control the host system directly.
 
 ## Optional packages for GUI and screenshot features
 

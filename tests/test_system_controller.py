@@ -41,3 +41,22 @@ def test_start_process(monkeypatch):
     assert proc == 'proc'
     assert launched['cmd'] == 'echo hi'
     assert launched['shell']
+
+
+def test_close_window_by_name(monkeypatch):
+    calls = {}
+
+    class DummyWindow:
+        def close(self):
+            calls['closed'] = True
+
+    class DummyApp:
+        def connect(self, title_re=None):
+            calls['title'] = title_re
+            return SimpleNamespace(top_window=lambda: DummyWindow())
+
+    monkeypatch.setattr(system_controller, 'Application', DummyApp)
+
+    assert system_controller.close_window_by_name('Calculator')
+    assert calls['title'] == 'Calculator'
+    assert calls['closed']
