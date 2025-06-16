@@ -264,7 +264,8 @@ class SystemMonitor:
                 pass
         return texts
 
-    def _capture_screen(self):
+    def _take_screenshot(self):
+        """Return a screenshot image using ``ImageGrab`` or ``pyautogui``."""
         img = None
         if ImageGrab:
             try:
@@ -276,7 +277,10 @@ class SystemMonitor:
                 img = pyautogui.screenshot()
             except Exception:
                 img = None
+        return img
 
+    def _capture_screen(self):
+        img = self._take_screenshot()
         if img and pytesseract:
             try:
                 text = pytesseract.image_to_string(img)
@@ -370,17 +374,7 @@ class SystemMonitor:
 
     def capture_screen_text(self):
         """Return OCR text from a screenshot if possible."""
-        img = None
-        if ImageGrab:
-            try:
-                img = ImageGrab.grab()
-            except Exception:
-                img = None
-        if img is None and pyautogui:
-            try:
-                img = pyautogui.screenshot()
-            except Exception:
-                img = None
+        img = self._take_screenshot()
         if img and pytesseract:
             try:
                 return pytesseract.image_to_string(img).strip()
