@@ -113,6 +113,42 @@ class SystemMonitorTest(unittest.TestCase):
         self.assertIsNotNone(monitor)
         importlib.reload(sm)
 
+    def test_summarize_high_level(self):
+        monitor = self._make_monitor()
+
+        import time
+        now = time.time()
+        monitor.events.append((now, "Pressed key: a"))
+        monitor.events.append((now, "Pressed key: b"))
+        monitor.events.append((now, "Mouse move"))
+        monitor.events.append((now, "Copied text: 'hello'"))
+
+        monitor._get_active_window_info = lambda: ("File.txt - Notepad", "notepad.exe")
+        monitor._check_clipboard = lambda: None
+
+        class P:
+            def __init__(self, name):
+                self.info = {"name": name}
+
+        def fake_iter(attrs=None):
+            return [P("notepad.exe"), P("chrome.exe"), P("System"), P(""), P("calc.exe")]
+
+        import psutil
+
+        original_iter = psutil.process_iter
+        psutil.process_iter = fake_iter
+        try:
+            summary = monitor.summarize()
+        finally:
+            psutil.process_iter = original_iter
+
+        self.assertIn("File.txt - Notepad", summary)
+        self.assertIn("2 keys pressed", summary)
+        self.assertIn("1 mouse move", summary)
+        self.assertIn("hello", summary)
+        self.assertIn("chrome.exe", summary)
+        self.assertIn("1 other", summary)
+
 
 if __name__ == "__main__":
     unittest.main()
