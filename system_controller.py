@@ -68,13 +68,16 @@ def close_window_by_name(app_name: str) -> bool:
             pass
 
     if psutil:
+        terminated = False
         for proc in psutil.process_iter(["name"]):
             try:
                 if app_name.lower() in (proc.info.get("name") or "").lower():
                     proc.terminate()
-                    return True
+                    terminated = True
             except Exception:
                 continue
+        if terminated:
+            return True
 
     return False
 
