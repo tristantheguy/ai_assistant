@@ -298,8 +298,15 @@ class SystemMonitor:
                     break
                 time.sleep(1)
 
-    def capture_snapshot(self):
-        """Gather system context and record meaningful events."""
+    def capture_snapshot(self, sort_by: str | None = None):
+        """Gather system context and record meaningful events.
+
+        Parameters
+        ----------
+        sort_by : {"cpu", "memory"}, optional
+            When provided, processes are sorted by the given metric in
+            descending order to better surface active applications.
+        """
         self._prune_history()
         self._check_clipboard()
 
@@ -311,8 +318,34 @@ class SystemMonitor:
             snippet = ", ".join(ui_texts[:5])
             self._record(f"Visible elements: {snippet}")
 
-        processes = {p.pid: p.name() for p in psutil.process_iter(["name"])}
-        self._record(f"Running apps: {list(processes.values())[:5]}")
+        metrics: list[tuple[float, str]] = []
+        for proc in psutil.process_iter(["name"]):
+            try:
+                name = proc.info.get("name") or ""
+                if name in ("", "System", "Registry", "System Idle Process"):
+                    continue
+                metric = 0.0
+                if sort_by == "cpu":
+                    try:
+                        metric = proc.cpu_percent(interval=None)
+                    except Exception:
+                        metric = 0.0
+                elif sort_by == "memory":
+                    try:
+                        metric = proc.memory_info().rss
+                    except Exception:
+                        metric = 0.0
+                metrics.append((metric, name))
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+            except Exception:
+                continue
+
+        if sort_by in {"cpu", "memory"}:
+            metrics.sort(key=lambda x: x[0], reverse=True)
+
+        names = [name for _, name in metrics]
+        self._record(f"Running apps: {names[:5]}")
 
         snapshot = self.to_json()
         self._append_to_log(snapshot)
