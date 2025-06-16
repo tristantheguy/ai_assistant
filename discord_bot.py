@@ -78,6 +78,10 @@ async def handle_message(message: discord.Message) -> None:
         system_controller.start_process(m.group(1).strip())
         return
 
+    if lower == "close":
+        system_controller.close_active_window()
+        return
+
     m = re.match(r"close\s+(.+)", content, re.I)
     if m:
         system_controller.close_window_by_name(m.group(1).strip())
