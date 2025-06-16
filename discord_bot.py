@@ -7,6 +7,7 @@ import threading
 import time
 import asyncio
 import re
+import logging
 
 import discord
 from system_monitor import SystemMonitor
@@ -14,6 +15,7 @@ import discord_agent
 import system_controller
 
 TOKEN = os.getenv("DISCORD_TOKEN")
+logging.basicConfig(level=logging.INFO)
 
 intents = discord.Intents.default()
 intents.message_content = True  # allow reading message text
@@ -62,6 +64,7 @@ async def handle_message(message: discord.Message) -> None:
         return
 
     content = message.content
+    logging.info("Command received: %s", content)
     lower = content.lower().strip()
     if lower == "!status":
         monitor.capture_snapshot()
@@ -70,21 +73,42 @@ async def handle_message(message: discord.Message) -> None:
 
     m = re.match(r"open\s+(.+)", content, re.I)
     if m:
-        system_controller.open_file(m.group(1).strip())
+        path = m.group(1).strip()
+        logging.info("Calling open_file(%s)", path)
+        success = system_controller.open_file(path)
+        logging.info("open_file returned %s", success)
+        await message.channel.send("Opened." if success else "Failed to open.")
         return
 
     m = re.match(r"start\s+(.+)", content, re.I)
     if m:
-        system_controller.start_process(m.group(1).strip())
+        cmd = m.group(1).strip()
+        logging.info("Calling start_process(%s)", cmd)
+        proc = system_controller.start_process(cmd)
+        logging.info("start_process returned %s", bool(proc))
+        await message.channel.send(
+            "Process started." if proc else "Failed to start process."
+        )
         return
 
     if lower == "close":
-        system_controller.close_active_window()
+        logging.info("Calling close_active_window()")
+        success = system_controller.close_active_window()
+        logging.info("close_active_window returned %s", success)
+        await message.channel.send(
+            "Closed active window." if success else "Failed to close window."
+        )
         return
 
     m = re.match(r"close\s+(.+)", content, re.I)
     if m:
-        system_controller.close_window_by_name(m.group(1).strip())
+        name = m.group(1).strip()
+        logging.info("Calling close_window_by_name(%s)", name)
+        success = system_controller.close_window_by_name(name)
+        logging.info("close_window_by_name returned %s", success)
+        await message.channel.send(
+            f"Closed {name}." if success else f"Failed to close {name}."
+        )
         return
 
     loop = asyncio.get_running_loop()

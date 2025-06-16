@@ -101,6 +101,7 @@ def test_handle_message_open_command(monkeypatch):
     asyncio.run(discord_bot.handle_message(message))
 
     assert calls['path'] == 'foo.txt'
+    assert channel.sent == ["Opened."]
     assert not discord_bot._agents
 
 
@@ -115,6 +116,7 @@ def test_handle_message_start_command(monkeypatch):
     asyncio.run(discord_bot.handle_message(message))
 
     assert calls['cmd'] == 'echo hi'
+    assert channel.sent == ["Process started."]
     assert not discord_bot._agents
 
 
@@ -129,6 +131,7 @@ def test_handle_message_close_command(monkeypatch):
     asyncio.run(discord_bot.handle_message(message))
 
     assert calls['name'] == 'calc'
+    assert channel.sent == ["Closed calc."]
     assert not discord_bot._agents
 
 
@@ -143,4 +146,5 @@ def test_handle_message_close_active_window(monkeypatch):
     asyncio.run(discord_bot.handle_message(message))
 
     assert calls.get('called')
+    assert channel.sent == ["Closed active window."]
     assert not discord_bot._agents

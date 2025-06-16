@@ -44,6 +44,7 @@ async def _assert_system_command(monkeypatch, content, attr, arg):
     await discord_bot.handle_message(message)
 
     assert calls.get("arg") == arg
+    assert channel.sent
     assert not discord_bot._agents
 
 
