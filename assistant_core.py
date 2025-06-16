@@ -4,6 +4,12 @@ import os
 import subprocess
 import datetime
 
+from system_controller import (
+    open_file,
+    close_active_window,
+    start_process,
+)
+
 class AIAssistant:
     def __init__(self):
         self.greeting()
@@ -18,6 +24,12 @@ class AIAssistant:
             if user_input.lower() in ("exit", "quit"):
                 print("👋 Goodbye!")
                 break
+            elif user_input.lower().startswith("open "):
+                open_file(user_input[5:].strip())
+            elif user_input.lower() == "close":
+                close_active_window()
+            elif user_input.lower().startswith("start "):
+                start_process(user_input[6:].strip())
             elif user_input.startswith("!"):
                 self.run_shell_command(user_input[1:])
             elif user_input.lower().startswith("read "):
