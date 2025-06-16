@@ -94,8 +94,10 @@ class SystemMonitorTest(unittest.TestCase):
         with unittest.mock.patch("builtins.__import__", side_effect=fake_import):
             importlib.reload(sm)
             monitor = sm.SystemMonitor()
-            self.assertIsNone(sm.keyboard)
-            self.assertIsNone(sm.mouse)
+            self.assertIsNotNone(sm.keyboard)
+            self.assertIsNotNone(sm.mouse)
+            self.assertTrue(hasattr(sm.keyboard, "hook"))
+            self.assertTrue(hasattr(sm.mouse, "hook"))
     def test_import_without_tesseract_cmd(self):
         import importlib
         import system_monitor as sm

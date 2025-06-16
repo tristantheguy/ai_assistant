@@ -30,6 +30,11 @@ The `SystemMonitor` component now tracks:
 - Keyboard and mouse activity.
 - Optional file modifications using `watchdog`.
 
+If the `keyboard` or `mouse` packages are unavailable, `SystemMonitor` falls
+back to local `keyboard_stub` and `mouse_stub` modules that provide no-op
+`hook` functions. These stubs allow the code and tests to run without the
+optional input libraries installed.
+
 Snapshots are written to `activity_log.jsonl` in the repository root.
 
 If the window information libraries are unavailable, the monitor falls back to `"Unknown Window"`.
