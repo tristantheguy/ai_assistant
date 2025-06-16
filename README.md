@@ -85,6 +85,17 @@ enable that permission in the Discord developer portal.
 The bot also starts a small `SystemMonitor` thread. Type `!status` in any channel
 to see a summary of recent window titles, inputs, and clipboard changes.
 
+## Optional GUI and screenshot packages
+
+The minimal `requirements.txt` keeps dependencies small. Install these extras to enable the graphical interface and screenshot capture:
+
+- `PyQt5` for the desktop GUI
+- `pyautogui` or `Pillow` to take screenshots
+- `pytesseract` for OCR on those images
+- `watchdog`, `pyperclip`, `pygetwindow`, and `pywin32` improve monitoring when present
+
+The test suite automatically skips GUI and screenshot features when these packages are missing.
+
 ## License
 
 This project is licensed under the terms of the [MIT License](LICENSE).
