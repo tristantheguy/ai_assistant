@@ -149,6 +149,51 @@ class SystemMonitorTest(unittest.TestCase):
         self.assertIn("chrome.exe", summary)
         self.assertIn("1 other", summary)
 
+    def test_capture_snapshot_filters_and_sorts_processes(self):
+        monitor = self._make_monitor()
+        monitor._get_active_window_info = lambda: ("Win", "app.exe")
+        monitor._extract_ui_text = lambda: []
+        monitor._check_clipboard = lambda: None
+        monitor._append_to_log = lambda data: None
+
+        import psutil
+
+        class P:
+            def __init__(self, name, cpu=0, mem=0):
+                self.info = {"name": name}
+                self._cpu = cpu
+                self._mem = mem
+
+            def cpu_percent(self, interval=None):
+                return self._cpu
+
+            class Mem:
+                def __init__(self, rss):
+                    self.rss = rss
+
+            def memory_info(self):
+                return self.Mem(self._mem)
+
+        def fake_iter(attrs=None):
+            return [
+                P("System"),
+                P("Registry"),
+                P(""),
+                P("chrome.exe", cpu=10, mem=200),
+                P("notes.exe", cpu=20, mem=100),
+            ]
+
+        original_iter = psutil.process_iter
+        psutil.process_iter = fake_iter
+        try:
+            monitor.capture_snapshot(sort_by="cpu")
+        finally:
+            psutil.process_iter = original_iter
+
+        run_event = [e[1] for e in monitor.events if e[1].startswith("Running apps")][0]
+        names_list = eval(run_event[len("Running apps: "):])
+        self.assertEqual(names_list, ["notes.exe", "chrome.exe"])
+
 
 if __name__ == "__main__":
     unittest.main()
