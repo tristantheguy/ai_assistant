@@ -86,3 +86,27 @@ def test_close_window_by_name_psutil(monkeypatch):
     assert 'calc.exe' in terminations
     assert 'calc-helper.exe' in terminations
     assert 'notepad.exe' not in terminations
+
+
+def test_close_window_by_name_multiple_matches(monkeypatch):
+    terminations = []
+
+    class DummyProc:
+        def __init__(self, name):
+            self.info = {'name': name}
+
+        def terminate(self):
+            terminations.append(self.info['name'])
+
+    def fake_iter(attrs):
+        return [
+            DummyProc('foo.exe'),
+            DummyProc('foo.exe'),
+            DummyProc('bar.exe'),
+        ]
+
+    monkeypatch.setattr(system_controller, 'Application', None)
+    monkeypatch.setattr(system_controller, 'psutil', SimpleNamespace(process_iter=fake_iter))
+
+    assert system_controller.close_window_by_name('foo')
+    assert terminations == ['foo.exe', 'foo.exe']
