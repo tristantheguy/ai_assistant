@@ -27,3 +27,23 @@ def test_default_system_prompt():
 def test_custom_system_prompt():
     client = OllamaClient(system_prompt="be quirky")
     assert client._messages[0]["content"] == "be quirky"
+
+
+def test_stream_response_appends(monkeypatch):
+    client = OllamaClient()
+
+    streamed_lines = [
+        json.dumps({"message": {"content": "hello "}}),
+        json.dumps({"message": {"content": "world"}}),
+    ]
+
+    fake_response = mock.Mock()
+    fake_response.text = "\n".join(streamed_lines)
+    fake_response.headers = {"content-type": "text/event-stream"}
+    fake_response.raise_for_status.return_value = None
+
+    with mock.patch("requests.post", return_value=fake_response):
+        reply = client.query("hi")
+
+    assert reply == "hello world"
+    assert client._messages[-1] == {"role": "assistant", "content": "hello world"}
