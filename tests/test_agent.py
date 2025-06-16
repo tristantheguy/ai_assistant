@@ -109,3 +109,27 @@ def test_loop_continues_with_reporter(tmp_path):
     assert reporter.count == 1
     assert window.last == "ok"
     agent.stop()
+
+
+def test_no_query_on_unchanged_snapshot(tmp_path):
+    window = DummyWindow()
+    agent = ClippyAgent(window, poll_interval=0, notify_interval=1000)
+    agent.monitor = _make_monitor(tmp_path)
+
+    class DummyLLM:
+        def __init__(self):
+            self.calls = 0
+
+        def query(self, prompt):
+            self.calls += 1
+            return "ok"
+
+    agent.llm = DummyLLM()
+
+    agent.start()
+    time.sleep(0.05)
+    first_calls = agent.llm.calls
+    time.sleep(0.05)
+    agent.stop()
+
+    assert first_calls == agent.llm.calls == 1
