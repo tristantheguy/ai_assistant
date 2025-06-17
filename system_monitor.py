@@ -23,6 +23,7 @@ IGNORED_PROCESSES = {
     "svchost.exe",
     "wininit.exe",
     "winlogon.exe",
+    "lsass.exe",
 }
 
 try:
