@@ -120,9 +120,16 @@ async def handle_message(message: discord.Message) -> None:
     m = re.match(r"!gmail\s+(.+)", content, re.I)
     if m:
         query = m.group(1).strip()
-        service = gmail_utils.get_service()
-        loop = asyncio.get_running_loop()
-        results = await loop.run_in_executor(None, gmail_utils.search_messages, service, query)
+        try:
+            service = gmail_utils.get_service()
+            loop = asyncio.get_running_loop()
+            results = await loop.run_in_executor(
+                None, gmail_utils.search_messages, service, query
+            )
+        except Exception as exc:
+            logging.exception("Error searching Gmail")
+            await message.channel.send(f"Error searching Gmail: {exc}")
+            return
         if results:
             lines = "\n".join(f"- {sub}" for _, sub in results)
             await message.channel.send(f"Found {len(results)} messages:\n{lines}")

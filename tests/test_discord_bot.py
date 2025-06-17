@@ -208,3 +208,21 @@ def test_handle_message_gmail(monkeypatch):
 
     assert "sub1" in channel.sent[0]
     assert "sub2" in channel.sent[0]
+
+
+def test_handle_message_gmail_error(monkeypatch):
+    _reset_agents()
+    channel = DummyChannel()
+    message = SimpleNamespace(author=DummyAuthor(), content="!gmail bar", channel=channel)
+
+    monkeypatch.setattr(discord_bot.gmail_utils, "get_service", lambda: "svc")
+
+    def boom(*a, **k):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(discord_bot.gmail_utils, "search_messages", boom)
+
+    asyncio.run(discord_bot.handle_message(message))
+
+    assert channel.sent
+    assert "Error" in channel.sent[0]
