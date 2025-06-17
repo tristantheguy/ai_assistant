@@ -265,6 +265,48 @@ class SystemMonitor:
 
         return title, app
 
+    def list_open_windows(self):
+        """Return a list of window titles currently open on the system."""
+        titles = []
+
+        if gw:
+            try:
+                titles = [t for t in gw.getAllTitles() if t]
+            except Exception:
+                titles = []
+
+        if not titles and sys.platform.startswith("win") and desktop:
+            try:
+                titles = [w.window_text() for w in desktop.windows() if w.window_text()]
+            except Exception:
+                titles = []
+
+        if not titles:
+            try:
+                import subprocess
+                if sys.platform.startswith("linux"):
+                    out = subprocess.check_output(["wmctrl", "-l"], text=True)
+                    for line in out.splitlines():
+                        parts = line.split(None, 3)
+                        if len(parts) == 4:
+                            titles.append(parts[3])
+                elif sys.platform == "darwin":
+                    script = (
+                        'tell application "System Events" to get the title of every window of every process whose visible is true'
+                    )
+                    out = subprocess.check_output(["osascript", "-e", script], text=True)
+                    for t in out.strip().split(", "):
+                        if t and t != "missing value":
+                            titles.append(t)
+            except Exception:
+                pass
+
+        seen = []
+        for t in titles:
+            if t and t not in seen:
+                seen.append(t)
+        return seen
+
     def _extract_ui_text(self):
         texts = []
         if sys.platform.startswith("win") and desktop:
@@ -362,6 +404,10 @@ class SystemMonitor:
         names = [name for _, name in metrics]
         self._record(f"Running apps: {names[:5]}")
 
+        windows = self.list_open_windows()
+        if windows:
+            self._record(f"Open windows: {windows[:5]}")
+
         snapshot = self.to_json()
         self._append_to_log(snapshot)
         return snapshot
@@ -435,6 +481,9 @@ class SystemMonitor:
             parts.append(f"Clipboard: '{clipboard_text}'.")
         if apps_summary:
             parts.append(f"Running apps: {apps_summary}.")
+        windows = self.list_open_windows()
+        if windows:
+            parts.append(f"Open windows: {', '.join(windows[:3])}.")
 
         return " ".join(parts)
 
@@ -459,6 +508,7 @@ class SystemMonitor:
             for e in self.events
             if e[1].startswith("Screen OCR:")
         ]
+        windows = self.list_open_windows()
 
         return {
             "timestamp": datetime.now().isoformat(),
@@ -466,6 +516,7 @@ class SystemMonitor:
             "clipboard": clipboard,
             "input_events": inputs,
             "ocr_snippets": ocr,
+            "open_windows": windows,
         }
 
     def _append_to_log(self, data):

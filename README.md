@@ -29,6 +29,9 @@ The `SystemMonitor` component now tracks:
 - Clipboard changes in real time.
 - Keyboard and mouse activity.
 - Optional file modifications using `watchdog`.
+- `SystemMonitor.list_open_windows()` enumerates titles of all visible windows
+  using `pygetwindow` when available. It falls back to `pywinauto` on Windows,
+  `wmctrl -l` on Linux, or `osascript` on macOS.
 
 If the `keyboard` or `mouse` packages are unavailable, `SystemMonitor` falls
 back to local `keyboard_stub` and `mouse_stub` modules that provide no-op

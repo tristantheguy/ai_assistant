@@ -42,6 +42,52 @@ class SystemMonitorTest(unittest.TestCase):
         self.assertTrue(monitor.events)
         self.assertIn("move", monitor.events[-1][1])
 
+    def test_list_open_windows_pygetwindow(self):
+        monitor = self._make_monitor()
+
+        class DummyGW:
+            @staticmethod
+            def getAllTitles():
+                return ["A", "", "B"]
+
+        with unittest.mock.patch("system_monitor.gw", DummyGW):
+            titles = monitor.list_open_windows()
+
+        self.assertEqual(titles, ["A", "B"])
+
+    def test_list_open_windows_wmctrl(self):
+        monitor = self._make_monitor()
+
+        wmctrl_output = "0x01 0 host A\n0x02 0 host B\n"
+
+        with unittest.mock.patch("system_monitor.gw", None), \
+             unittest.mock.patch("system_monitor.desktop", None), \
+             unittest.mock.patch("system_monitor.sys.platform", "linux"), \
+             unittest.mock.patch("subprocess.check_output", return_value=wmctrl_output):
+            titles = monitor.list_open_windows()
+
+        self.assertEqual(titles, ["A", "B"])
+
+    def test_capture_snapshot_includes_open_windows(self):
+        monitor = self._make_monitor()
+        monitor._get_active_window_info = lambda: ("Win", "app.exe")
+        monitor._extract_ui_text = lambda: []
+        monitor._check_clipboard = lambda: None
+        monitor._append_to_log = lambda data: None
+
+        class P:
+            def __init__(self, name):
+                self.info = {"name": name}
+
+        with unittest.mock.patch("psutil.process_iter", return_value=[P("app.exe")]), \
+             unittest.mock.patch.object(monitor, "list_open_windows", return_value=["A", "B"]):
+            snap = monitor.capture_snapshot()
+
+        self.assertIn("open_windows", snap)
+        self.assertEqual(snap["open_windows"], ["A", "B"])
+        event = [e[1] for e in monitor.events if e[1].startswith("Open windows")][0]
+        self.assertIn("A", event)
+
     def test_save_screen_memo_allow_empty_creates_file(self):
         import tempfile
         monitor = self._make_monitor()
