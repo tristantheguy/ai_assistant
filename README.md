@@ -126,6 +126,11 @@ directly even when the words appear mid-sentence. Use `start` for applications
 (`start chrome`) and `open` for files or folders. `close <title>` attempts to
 terminate all matching processes when possible.
 
+Type `!gmail <query>` in any channel to search your Gmail inbox. The bot
+authenticates using OAuth credentials stored locally. Set your Google client ID
+in the `GOOGLE_CLIENT_ID` environment variable and ensure the credentials file
+(`gmail_token.json` by default) is kept somewhere secure.
+
 ## Optional packages for GUI and screenshot features
 
 The minimal `requirements.txt` keeps dependencies small. Install these extras to enable the graphical interface and screenshot capture:

@@ -13,6 +13,7 @@ import discord
 from system_monitor import SystemMonitor
 import discord_agent
 import system_controller
+import gmail_utils
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 logging.basicConfig(level=logging.INFO)
@@ -114,6 +115,19 @@ async def handle_message(message: discord.Message) -> None:
         await message.channel.send(
             f"Closed {name}." if success else f"Failed to close {name}."
         )
+        return
+
+    m = re.match(r"!gmail\s+(.+)", content, re.I)
+    if m:
+        query = m.group(1).strip()
+        service = gmail_utils.get_service()
+        loop = asyncio.get_running_loop()
+        results = await loop.run_in_executor(None, gmail_utils.search_messages, service, query)
+        if results:
+            lines = "\n".join(f"- {sub}" for _, sub in results)
+            await message.channel.send(f"Found {len(results)} messages:\n{lines}")
+        else:
+            await message.channel.send("No messages found.")
         return
 
     loop = asyncio.get_running_loop()
