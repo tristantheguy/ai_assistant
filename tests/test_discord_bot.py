@@ -191,3 +191,20 @@ def test_handle_message_ignore_open_in_sentence(monkeypatch):
 
     assert 'path' not in calls
     assert channel.sent == ["reply"]
+
+def test_handle_message_gmail(monkeypatch):
+    _reset_agents()
+    channel = DummyChannel()
+    message = SimpleNamespace(author=DummyAuthor(), content="!gmail foo", channel=channel)
+
+    monkeypatch.setattr(discord_bot.gmail_utils, "get_service", lambda: "svc")
+    monkeypatch.setattr(
+        discord_bot.gmail_utils,
+        "search_messages",
+        lambda svc, q: [("1", "sub1"), ("2", "sub2")] if svc == "svc" and q == "foo" else [],
+    )
+
+    asyncio.run(discord_bot.handle_message(message))
+
+    assert "sub1" in channel.sent[0]
+    assert "sub2" in channel.sent[0]
