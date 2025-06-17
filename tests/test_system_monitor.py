@@ -146,6 +146,7 @@ class SystemMonitorTest(unittest.TestCase):
             return [
                 P("System"),
                 P("smss.exe", cpu=10),
+                P("lsass.exe", cpu=7),
                 P("notepad.exe", cpu=1),
                 P("csrss.exe", cpu=5),
                 P("chrome.exe", cpu=15),
@@ -171,6 +172,7 @@ class SystemMonitorTest(unittest.TestCase):
         self.assertIn("1 other", summary)
         self.assertNotIn("smss.exe", summary)
         self.assertNotIn("csrss.exe", summary)
+        self.assertNotIn("lsass.exe", summary)
 
     def test_capture_snapshot_filters_and_sorts_processes(self):
         monitor = self._make_monitor()
@@ -200,6 +202,7 @@ class SystemMonitorTest(unittest.TestCase):
         def fake_iter(attrs=None):
             return [
                 P("System"),
+                P("lsass.exe", cpu=50, mem=500),
                 P("Registry"),
                 P(""),
                 P("chrome.exe", cpu=10, mem=200),
