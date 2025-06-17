@@ -127,11 +127,31 @@ class SystemMonitorTest(unittest.TestCase):
         monitor._check_clipboard = lambda: None
 
         class P:
-            def __init__(self, name):
+            def __init__(self, name, cpu=0, mem=0):
                 self.info = {"name": name}
+                self._cpu = cpu
+                self._mem = mem
+
+            def cpu_percent(self, interval=None):
+                return self._cpu
+
+            class Mem:
+                def __init__(self, rss):
+                    self.rss = rss
+
+            def memory_info(self):
+                return self.Mem(self._mem)
 
         def fake_iter(attrs=None):
-            return [P("notepad.exe"), P("chrome.exe"), P("System"), P(""), P("calc.exe")]
+            return [
+                P("System"),
+                P("smss.exe", cpu=10),
+                P("notepad.exe", cpu=1),
+                P("csrss.exe", cpu=5),
+                P("chrome.exe", cpu=15),
+                P("", cpu=0),
+                P("calc.exe", cpu=20),
+            ]
 
         import psutil
 
@@ -147,7 +167,10 @@ class SystemMonitorTest(unittest.TestCase):
         self.assertIn("1 mouse move", summary)
         self.assertIn("hello", summary)
         self.assertIn("chrome.exe", summary)
+        self.assertIn("calc.exe", summary)
         self.assertIn("1 other", summary)
+        self.assertNotIn("smss.exe", summary)
+        self.assertNotIn("csrss.exe", summary)
 
     def test_capture_snapshot_filters_and_sorts_processes(self):
         monitor = self._make_monitor()

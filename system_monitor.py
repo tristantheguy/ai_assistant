@@ -11,6 +11,20 @@ import os
 import importlib
 import psutil
 
+# Additional system processes to ignore when summarizing running apps
+IGNORED_PROCESSES = {
+    "",
+    "System",
+    "System Idle Process",
+    "Registry",
+    "smss.exe",
+    "csrss.exe",
+    "services.exe",
+    "svchost.exe",
+    "wininit.exe",
+    "winlogon.exe",
+}
+
 try:
     keyboard = importlib.import_module("keyboard")
 except ImportError:
@@ -322,7 +336,7 @@ class SystemMonitor:
         for proc in psutil.process_iter(["name"]):
             try:
                 name = proc.info.get("name") or ""
-                if name in ("", "System", "Registry", "System Idle Process"):
+                if name in IGNORED_PROCESSES:
                     continue
                 metric = 0.0
                 if sort_by == "cpu":
@@ -369,14 +383,34 @@ class SystemMonitor:
             elif msg.startswith("Copied text:"):
                 clipboard_text = msg[13:-1]
 
-        names = []
+        metrics: list[tuple[float, str]] = []
         for proc in psutil.process_iter(["name"]):
             try:
                 name = proc.info.get("name") or ""
+                if name in IGNORED_PROCESSES:
+                    continue
+                cpu = 0.0
+                mem = 0.0
+                try:
+                    cpu = proc.cpu_percent(interval=None)
+                except Exception:
+                    cpu = 0.0
+                if not cpu:
+                    try:
+                        mem = proc.memory_info().rss
+                    except Exception:
+                        mem = 0.0
+                metric = cpu or mem
+                metrics.append((metric, name))
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
-            if name in ("", "System", "System Idle Process"):
+            except Exception:
                 continue
+
+        metrics.sort(key=lambda x: x[0], reverse=True)
+
+        names = []
+        for _, name in metrics:
             if name not in names:
                 names.append(name)
 
