@@ -131,6 +131,32 @@ authenticates using OAuth credentials stored locally. Set your Google client ID
 in the `GOOGLE_CLIENT_ID` environment variable and ensure the credentials file
 (`gmail_token.json` by default) is kept somewhere secure.
 
+## Gmail OAuth Setup
+
+To generate a valid `gmail_token.json`:
+
+1. Create a Google Cloud project and enable the Gmail API.
+2. Under **Credentials**, create an OAuth client ID for a **Desktop**
+   application.
+3. Download the JSON file with your client credentials (e.g.,
+   `credentials.json`).
+4. Run this script using `google-auth-oauthlib`:
+
+```python
+from google_auth_oauthlib.flow import InstalledAppFlow
+from pathlib import Path
+flow = InstalledAppFlow.from_client_secrets_file(
+    "credentials.json", ["https://www.googleapis.com/auth/gmail.readonly"]
+)
+creds = flow.run_local_server(port=0)
+Path("gmail_token.json").write_text(creds.to_json())
+```
+
+The resulting file must contain `client_id`, `client_secret`, `refresh_token`,
+and `token_uri`. Set `GOOGLE_CLIENT_ID` to the `client_id` value from the
+credentials. If you store the token in a different location, point
+`GMAIL_TOKEN_FILE` to that path when running the bot.
+
 ## Optional packages for GUI and screenshot features
 
 The minimal `requirements.txt` keeps dependencies small. Install these extras to enable the graphical interface and screenshot capture:
