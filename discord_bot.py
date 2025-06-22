@@ -28,6 +28,19 @@ _monitor_thread = None
 _stop_event = threading.Event()
 
 
+async def send_split_message(channel: discord.abc.Messageable, text: str, limit: int = 1800) -> None:
+    """Send ``text`` in chunks so each message stays below ``limit`` characters."""
+    start = 0
+    while start < len(text):
+        end = start + limit
+        if end < len(text):
+            newline = text.rfind("\n", start, end)
+            if newline > start:
+                end = newline + 1
+        await channel.send(text[start:end])
+        start = end
+
+
 def _monitor_loop():
     while not _stop_event.is_set():
         try:
@@ -132,7 +145,9 @@ async def handle_message(message: discord.Message) -> None:
             return
         if results:
             lines = "\n".join(f"- {sub}" for _, sub in results)
-            await message.channel.send(f"Found {len(results)} messages:\n{lines}")
+            await send_split_message(
+                message.channel, f"Found {len(results)} messages:\n{lines}"
+            )
         else:
             await message.channel.send("No messages found.")
         return
