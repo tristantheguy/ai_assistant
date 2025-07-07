@@ -127,9 +127,9 @@ directly even when the words appear mid-sentence. Use `start` for applications
 terminate all matching processes when possible.
 
 Type `!gmail <query>` in any channel to search your Gmail inbox. The bot
-authenticates using OAuth credentials stored locally. Set your Google client ID
-in the `GOOGLE_CLIENT_ID` environment variable and ensure the credentials file
-(`gmail_token.json` by default) is kept somewhere secure.
+authenticates using OAuth credentials stored locally. Credentials are loaded from
+`gmail_token.json` by default. Point `GMAIL_TOKEN_FILE` to a different path if
+you keep the token elsewhere.
 
 ## Gmail OAuth Setup
 
@@ -153,8 +153,7 @@ Path("gmail_token.json").write_text(creds.to_json())
 ```
 
 The resulting file must contain `client_id`, `client_secret`, `refresh_token`,
-and `token_uri`. Set `GOOGLE_CLIENT_ID` to the `client_id` value from the
-credentials. If you store the token in a different location, point
+and `token_uri`. If you store the token in a different location, point
 `GMAIL_TOKEN_FILE` to that path when running the bot.
 
 ## Optional packages for GUI and screenshot features

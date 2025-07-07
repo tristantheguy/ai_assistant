@@ -4,7 +4,6 @@ import gmail_utils
 
 
 def test_get_service(monkeypatch):
-    monkeypatch.setenv("GOOGLE_CLIENT_ID", "cid")
     monkeypatch.setenv("GMAIL_TOKEN_FILE", "token.json")
 
     calls = {}
