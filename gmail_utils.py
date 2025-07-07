@@ -8,16 +8,12 @@ from google.auth.transport.requests import Request
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 
-def get_service(client_id_env: str = "GOOGLE_CLIENT_ID"):
+def get_service():
     """Return an authenticated Gmail API service instance.
 
-    The OAuth client ID should be provided via the ``GOOGLE_CLIENT_ID``
-    environment variable. OAuth credentials are loaded from the path
-    specified by ``GMAIL_TOKEN_FILE`` or ``gmail_token.json`` by default.
+    OAuth credentials are loaded from the path specified by
+    ``GMAIL_TOKEN_FILE`` or ``gmail_token.json`` by default.
     """
-    client_id = os.getenv(client_id_env)
-    if not client_id:
-        raise RuntimeError(f"{client_id_env} environment variable not set")
 
     token_file = os.getenv("GMAIL_TOKEN_FILE", "gmail_token.json")
 
